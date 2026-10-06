@@ -1,20 +1,22 @@
 const products=[
-["isibindi","ISIBINDI","The Scent of Courage","origin",285,"assets/Isibindi%201.png"],
-["umoya","UMOYA","The Scent of Spirit","origin",285,"assets/Umoya%201.png"],
-["amandla","AMANDLA","The Scent of Strength","origin",285,"assets/Amandla%201.png"],
-["ulonwabo","ULONWABO","The Scent of Happiness","origin",285,"assets/Ubunono%201.png"],
-["ubulumko","UBULUMKO","The Scent of Wisdom","origin",285,"assets/Ubulumko%201.png"],
-["ubunono","UBUNONO","The Scent of Elegance","origin",285,"assets/Ubukhosi%201.png"],
-["car","Car Perfume","Ekhaya Scents","car",65,"assets/Car%20Perfume.jpeg"],
-["diffuser","Reed Diffuser","150ml Home Fragrance","home",299,"assets/Reed%20Diffuser.jpeg"],
-["bundle","Origin + Car Bundle","2 perfumes + 1 car perfume","bundle",512.5,"assets/Amandla%202.png"]
+["isibindi","ISIBINDI","The Scent of Courage","him",285,"assets/Isibindi%201.png"],
+["umoya","UMOYA","The Scent of Spirit","him",285,"assets/Umoya%201.png"],
+["amandla","AMANDLA","The Scent of Strength","him",285,"assets/Amandla%201.png"],
+["ulonwabo","ULONWABO","The Scent of Happiness","her",285,"assets/Ubunono%201.png"],
+["ubulumko","UBULUMKO","The Scent of Wisdom","her",285,"assets/Ubulumko%201.png"],
+["ubunono","UBUNONO","The Scent of Elegance","her",285,"assets/Ubukhosi%201.png"],
+["reed1","Reed Diffuser","150ml Home Fragrance","home",299,"assets/Reed%20Diffuser.jpeg"],
+["reed2","Reed Diffuser","150ml Home Fragrance","home",299,"assets/Reed%20Diffuser.jpeg"],
+["white-luxury","White Luxury","Car Perfume","car",65,"assets/Car%20Perfume.jpeg"],
+["eucalyptus","Eucalyptus","Car Perfume","car",65,"assets/Car%20Perfume.jpeg"]
 ];
 
-let cart=JSON.parse(localStorage.getItem("ekhaya_cart")||"[]");
+let cart=JSON.parse(localStorage.getItem("ekhaya_cart")||"[]");let activeFilter="all";let query="";
 const money=n=>"R"+n.toFixed(2);
 const $=id=>document.getElementById(id);
 
-function render(list=products){
+function filtered(){return products.filter(p=>{const cat=activeFilter==="all"||p[3]===activeFilter;const q=query.trim().toLowerCase();return cat&&(!q||p[1].toLowerCase().includes(q)||p[2].toLowerCase().includes(q)||p[3].toLowerCase().includes(q))})}
+function render(list=filtered()){
   $("products").innerHTML=list.map(p=>`
     <article class="product-card">
       <div class="product-visual">
