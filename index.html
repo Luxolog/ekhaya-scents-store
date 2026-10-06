@@ -19,9 +19,9 @@
     <a href="#about">Our Story</a>
   </nav>
   <div class="header-actions">
-    <button id="cartBtn" aria-label="Open cart">🛒 <b id="cartCount">0</b></button>
+    <button id="searchToggle" aria-label="Search">⌕</button><button id="cartBtn" aria-label="Open cart">🛒 <b id="cartCount">0</b></button>
   </div>
-</header>
+</header><div id="searchPanel" class="search-panel"><div class="search-inner"><label for="searchInput">SEARCH EKHAYA SCENTS</label><div class="search-box"><input id="searchInput" type="search" placeholder="Search fragrances, car perfumes, reed diffusers..." autocomplete="off"><button id="clearSearch" type="button">Clear</button></div></div></div>
 
 <main id="home">
   <section class="hero">
@@ -41,13 +41,13 @@
     </div>
   </section>
 
-  <section class="shop-section section" id="shop">
+  <section class="category-strip" aria-label="Shop categories"><a href="#shop" data-category="him"><span>01</span><strong>FOR HIM</strong><small>Signature men’s fragrances</small></a><a href="#shop" data-category="her"><span>02</span><strong>FOR HER</strong><small>Signature women’s fragrances</small></a><a href="#shop" data-category="home"><span>03</span><strong>HOME</strong><small>Reed diffusers</small></a><a href="#shop" data-category="car"><span>04</span><strong>CAR</strong><small>Every drive, your signature</small></a></section><section class="shop-section section" id="shop">
     <div class="section-heading">
       <p class="eyebrow">THE COLLECTION</p>
       <h2>Shop the collection</h2>
       <p>Discover signature Origin fragrances and selected Ekhaya home scents.</p>
     </div>
-    <div class="pills">
+    <div class="shop-search"><span>⌕</span><input id="shopSearch" type="search" placeholder="Search products..." autocomplete="off"></div><div class="pills">
       <button class="active" data-filter="all">All</button>
       <button data-filter="origin">Origin</button>
       <button data-filter="car">Car Perfume</button>
