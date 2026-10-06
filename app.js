@@ -16,11 +16,12 @@ const money=n=>"R"+n.toFixed(2);
 const $=id=>document.getElementById(id);
 
 function filtered(){return products.filter(p=>{const cat=activeFilter==="all"||p[3]===activeFilter;const q=query.trim().toLowerCase();return cat&&(!q||p[1].toLowerCase().includes(q)||p[2].toLowerCase().includes(q)||p[3].toLowerCase().includes(q))})}
+function categoryLabel(c){return c==="him"?"For Him":c==="her"?"For Her":c==="home"?"Home":"Car"}
 function render(list=filtered()){
   $("products").innerHTML=list.map(p=>`
     <article class="product-card">
       <div class="product-visual">
-        <span class="tag">${p[3]}</span>
+        <span class="tag">${categoryLabel(p[3])}</span>
         <img src="${p[5]}" alt="${p[1]} — ${p[2]}" loading="lazy">
         <button class="btn add" onclick="add('${p[0]}')">Add to cart</button>
       </div>
