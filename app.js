@@ -11,6 +11,15 @@ const products=[
 ["eucalyptus","Eucalyptus","Car Perfume","car",65,"assets/Car%20Perfume.jpeg"]
 ];
 
+const scentDetails={
+  isibindi:{name:"ISIBINDI",meaning:"The Scent of Courage",description:"A confident, refined fragrance with a fresh opening, a warm aromatic heart and a smooth woody finish.",top:"Pineapple, bergamot, blackcurrant",heart:"Birch, jasmine, rose",base:"Musk, oakmoss, amber, vanilla"},
+  umoya:{name:"UMOYA",meaning:"The Scent of Spirit",description:"Fresh, powerful and unmistakably masculine, balancing bright citrus with aromatic spice and a deep amber-woody dry-down.",top:"Bergamot, lemon, pepper",heart:"Lavender, geranium, patchouli",base:"Ambroxan, cedar, vetiver"},
+  amandla:{name:"AMANDLA",meaning:"The Scent of Strength",description:"An energetic aquatic-woody profile that opens fresh and vibrant before settling into a warm, confident base.",top:"Grapefruit, mandarin, marine accords",heart:"Bay leaf, jasmine",base:"Guaiac wood, patchouli, ambergris"},
+  ulonwabo:{name:"ULONWABO",meaning:"The Scent of Happiness",description:"A luminous gourmand floral built around soft florals, sweet praline and a warm vanilla-patchouli finish.",top:"Pear, blackcurrant",heart:"Iris, jasmine, orange blossom",base:"Praline, vanilla, patchouli, tonka bean"},
+  ubulumko:{name:"UBULUMKO",meaning:"The Scent of Wisdom",description:"A seductive, sophisticated fragrance where rich coffee and white florals meet a smooth, sweet vanilla base.",top:"Pink pepper, orange blossom",heart:"Coffee, jasmine, bitter almond",base:"Vanilla, patchouli, cedar"},
+  ubunono:{name:"UBUNONO",meaning:"The Scent of Elegance",description:"A polished floral-gourmand composition with creamy almond, white florals and a warm tonka-cacao finish.",top:"Almond, coffee, bergamot",heart:"Tuberose, jasmine, orange blossom",base:"Tonka bean, cacao, vanilla, sandalwood"}
+};
+
 let cart=JSON.parse(localStorage.getItem("ekhaya_cart")||"[]");let activeFilter="all";let query="";
 const money=n=>"R"+n.toFixed(2);
 const $=id=>document.getElementById(id);
@@ -88,6 +97,23 @@ $("cartBtn").onclick=openCart;
 $("closeCart").onclick=closeCart;
 $("overlay").onclick=closeCart;
 $("checkout").onclick=()=>alert("Secure online checkout will be connected next. WhatsApp ordering is available during testing.");
+document.querySelectorAll(".scent-name").forEach(btn=>btn.onclick=()=>openScent(btn.dataset.scent));
+document.querySelectorAll("[data-close-scent]").forEach(el=>el.onclick=closeScent);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeScent()});
+function openScent(id){
+  const s=scentDetails[id]; if(!s)return;
+  $("scentModalTitle").textContent=s.name;
+  $("scentModalMeaning").textContent=s.meaning;
+  $("scentModalDescription").textContent=s.description;
+  $("scentTop").textContent=s.top;
+  $("scentHeart").textContent=s.heart;
+  $("scentBase").textContent=s.base;
+  $("scentShop").onclick=()=>{closeScent();setFilter(id==="isibindi"||id==="umoya"||id==="amandla"?"him":"her")};
+  $("scentModal").classList.add("open");
+  $("scentModal").setAttribute("aria-hidden","false");
+}
+function closeScent(){$("scentModal").classList.remove("open");$("scentModal").setAttribute("aria-hidden","true")}
+
 $("whatsapp").onclick=()=>{
   if(!cart.length)return alert("Your cart is empty.");
   let text="Hello Ekhaya Scents, I would like to order:%0A"+cart.map(x=>{
