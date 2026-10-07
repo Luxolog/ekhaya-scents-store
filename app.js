@@ -20,6 +20,9 @@ const scentDetails={
 };
 
 let cart=JSON.parse(localStorage.getItem("ekhaya_cart")||"[]");let activeFilter="all";let query="";
+const CHECKOUT_ENDPOINT = window.EKHAYA_CHECKOUT_ENDPOINT || "";
+const STORE_URL = "https://ekhayascents.store";
+const GOOGLE_REVIEW_URL = "https://g.page/r/Cc7UmlM_-9a5EBM/review";
 const reseller=JSON.parse(localStorage.getItem("ekhaya_reseller")||"null");
 const isReseller=!!(reseller&&reseller.tag==="RESELLER");
 function resellerPrice(p,qty){if(!isReseller)return p[5];if(p[3]==="him"||p[3]==="her")return qty>=16?130:qty>=5?135:p[5];if(p[3]==="home")return qty>=5?190:p[5];if(p[3]==="car")return qty>=25?25:qty>=15?30:qty>=10?35:p[5];return p[5]}
@@ -113,7 +116,50 @@ $("cartBtn").onclick=openCart;
 $("closeCart").onclick=closeCart;
 $("overlay").onclick=closeCart;
 document.querySelectorAll('input[name="shipping"]').forEach(r=>r.addEventListener("change",renderCart));
-$("checkout").onclick=()=>alert("Secure online checkout will be connected next. Your selected delivery option will be included.");
+const checkoutModal=$("checkoutModal");
+const checkoutForm=$("checkoutForm");
+const checkoutStatus=$("checkoutStatus");
+function openCheckout(){
+  if(!cart.length){alert("Your cart is empty.");return;}
+  checkoutModal.classList.add("open");
+  checkoutModal.setAttribute("aria-hidden","false");
+  checkoutStatus.textContent="";
+  $("checkoutEmail").focus();
+}
+function closeCheckout(){checkoutModal.classList.remove("open");checkoutModal.setAttribute("aria-hidden","true")}
+document.querySelectorAll("[data-close-checkout]").forEach(el=>el.onclick=closeCheckout);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeCheckout();closeScent()}});
+
+$("checkout").onclick=openCheckout;
+checkoutForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!cart.length){alert("Your cart is empty.");closeCheckout();return;}
+  if(!CHECKOUT_ENDPOINT){
+    checkoutStatus.textContent="Payfast is prepared for production, but the secure HOSTAFRICA checkout endpoint still needs to be connected.";
+    return;
+  }
+  checkoutStatus.textContent="Preparing secure Payfast checkout…";
+  const pricing=cartPricing(), shipping=selectedShipping();
+  const payload={
+    name:$("checkoutName").value.trim(),
+    email:$("checkoutEmail").value.trim(),
+    amount:(pricing.subtotal+shipping).toFixed(2),
+    description:"Ekhaya Scents order",
+    shipping:shipping,
+    items:cart.map(x=>({id:x.id,qty:x.qty}))
+  };
+  try{
+    const res=await fetch(CHECKOUT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(!data.ok)throw new Error(data.error||"Checkout could not be prepared.");
+    const form=document.createElement("form");
+    form.method="POST";form.action=data.endpoint;
+    Object.entries(data.fields||{}).forEach(([k,v])=>{const input=document.createElement("input");input.type="hidden";input.name=k;input.value=v;form.appendChild(input)});
+    document.body.appendChild(form);form.submit();
+  }catch(err){
+    checkoutStatus.textContent=err.message||"Checkout failed. Please try again.";
+  }
+});
 document.querySelectorAll(".scent-name").forEach(btn=>btn.onclick=()=>openScent(btn.dataset.scent));
 document.querySelectorAll("[data-close-scent]").forEach(el=>el.onclick=closeScent);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeScent()});
@@ -138,7 +184,7 @@ $("whatsapp").onclick=()=>{
     let p=products.find(y=>y[0]===x.id);
     return x.qty+" x "+p[1]+" — "+money(resellerPrice(p,x.qty)*x.qty);
   }).join("%0A")+"%0A%0ASubtotal: "+money(pricing.subtotal)+"%0ADelivery: "+(shipping===75?"Locker to Locker":"Store to Door")+" — "+money(shipping)+"%0ATotal: "+money(pricing.subtotal+shipping);
-  window.open("https://wa.me/27738468238?text="+encodeURIComponent(text),"_blank");
+  window.open("https://wa.me/27648935154?text="+encodeURIComponent(text),"_blank");
 };
 render();
 renderCart();
