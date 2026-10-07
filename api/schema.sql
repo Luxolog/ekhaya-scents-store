@@ -1,0 +1,50 @@
+CREATE TABLE customers (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  phone VARCHAR(30) NULL,
+  first_purchase DATE NULL,
+  last_purchase DATE NULL,
+  order_count INT UNSIGNED NOT NULL DEFAULT 0,
+  lifetime_value DECIMAL(12,2) NOT NULL DEFAULT 0,
+  marketing_status ENUM('REVIEW_REQUIRED','OPTED_IN','OPTED_OUT') NOT NULL DEFAULT 'REVIEW_REQUIRED',
+  unsubscribe TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_number VARCHAR(60) NOT NULL UNIQUE,
+  customer_id INT UNSIGNED NULL,
+  email VARCHAR(190) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  shipping_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+  payment_status VARCHAR(40) NOT NULL DEFAULT 'pending',
+  fulfillment_status VARCHAR(40) NOT NULL DEFAULT 'pending',
+  payment_reference VARCHAR(120) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  paid_at TIMESTAMP NULL,
+  INDEX(email),
+  INDEX(payment_status)
+);
+
+CREATE TABLE campaigns (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  segment VARCHAR(80) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
+  status ENUM('DRAFT','APPROVED','SCHEDULED','SENT','PAUSED') NOT NULL DEFAULT 'DRAFT',
+  scheduled_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE campaign_events (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  campaign_id INT UNSIGNED NOT NULL,
+  customer_id INT UNSIGNED NOT NULL,
+  event_type VARCHAR(40) NOT NULL,
+  occurred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_campaign_customer_event (campaign_id, customer_id, event_type)
+);
