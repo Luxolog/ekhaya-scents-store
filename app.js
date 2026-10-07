@@ -33,12 +33,12 @@ function filtered(){return products.filter(isMatch)}
 function categoryLabel(c){return c==="him"?"For Him":c==="her"?"For Her":c==="home"?"Home":"Car"}
 function render(list=filtered()){
   $("products").innerHTML=list.map(p=>`
-    <article class="product-card">
+    <article class="product-card" onclick="add('${p[0]}')">
       <div class="product-visual">
         <span class="tag">${categoryLabel(p[3])}</span>
         ${p[4]>p[5]?'<span class="sale-tag">SALE</span>':""}
         <img src="${p[6]}" alt="${p[1]} — ${p[2]}" loading="lazy">
-        <button class="btn add" onclick="add('${p[0]}')">Add to cart</button>
+        <button class="btn add" onclick="event.stopPropagation();add('${p[0]}')">Add to cart</button>
       </div>
       <div class="info"><h3>${p[1]}</h3><p>${p[2]}</p><div class="price">${p[4]>p[5]?'<del>'+money(p[4])+'</del>':""}<b>${money(p[5])}</b>${p[4]>p[5]?'<small>SAVE '+money(p[4]-p[5])+'</small>':""}</div></div>
     </article>`).join("");
