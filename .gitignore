@@ -1,0 +1,6 @@
+api/config.php
+customers*.csv
+*.sql.local
+.env
+.env.*
+.DS_Store
