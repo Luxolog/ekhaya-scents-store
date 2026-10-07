@@ -162,3 +162,17 @@ footer h4{font-size:9px;letter-spacing:2px;margin-top:0}
   .note-grid div{border-right:0;border-bottom:1px solid var(--line)}
   .note-grid div:last-child{border-bottom:0}
 }
+/* Pricing and delivery */
+.sale-tag{position:absolute;top:12px;right:12px;background:#111;color:#fff;padding:7px 9px;font-size:8px;letter-spacing:1.5px;font-weight:bold;z-index:2}
+.price{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.price del{color:#999;font-size:11px}
+.price b{font-size:14px}
+.price small{color:#a17f42;font-size:8px;letter-spacing:1px;font-weight:bold}
+.cart-promo{font-size:10px;line-height:1.5;color:#a17f42;margin-bottom:12px}
+.shipping-box{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:15px 0;margin-bottom:15px}
+.shipping-title{font-size:8px;letter-spacing:2px;color:var(--gold);font-weight:bold;margin:0 0 10px}
+.shipping-box label{display:flex;align-items:center;gap:8px;font-size:11px;padding:7px 0}
+.shipping-box label strong{margin-left:auto}
+.shipping-box input{accent-color:#111}
+.cart-foot>div:not(.cart-promo):not(.shipping-box){margin-top:7px;font-size:11px}
+.cart-foot .cart-total{border-top:1px solid var(--line);margin-top:12px!important;padding-top:12px;font-size:15px!important}
