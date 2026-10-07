@@ -15,7 +15,8 @@ let cart=JSON.parse(localStorage.getItem("ekhaya_cart")||"[]");let activeFilter=
 const money=n=>"R"+n.toFixed(2);
 const $=id=>document.getElementById(id);
 
-function filtered(){return products.filter(p=>{const cat=activeFilter==="all"||p[3]===activeFilter;const q=query.trim().toLowerCase();return cat&&(!q||p[1].toLowerCase().includes(q)||p[2].toLowerCase().includes(q)||p[3].toLowerCase().includes(q))})}
+function isMatch(p){const cat=activeFilter==="all"||(activeFilter==="origin"&&(p[3]==="him"||p[3]==="her"))||p[3]===activeFilter;const q=query.trim().toLowerCase();return cat&&(!q||p[1].toLowerCase().includes(q)||p[2].toLowerCase().includes(q)||p[3].toLowerCase().includes(q))}
+function filtered(){return products.filter(isMatch)}
 function categoryLabel(c){return c==="him"?"For Him":c==="her"?"For Her":c==="home"?"Home":"Car"}
 function render(list=filtered()){
   $("products").innerHTML=list.map(p=>`
@@ -49,11 +50,40 @@ function qty(id,d){
 function openCart(){$("cart").classList.add("open");$("overlay").classList.add("open")}
 function closeCart(){$("cart").classList.remove("open");$("overlay").classList.remove("open")}
 
-document.querySelectorAll(".pills button").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".pills button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
-  render(b.dataset.filter==="all"?products:products.filter(p=>p[3]===b.dataset.filter));
+function setFilter(filter){
+  activeFilter=filter;
+  document.querySelectorAll(".pills button").forEach(x=>x.classList.toggle("active",x.dataset.filter===filter));
+  render();
+}
+document.querySelectorAll(".pills button").forEach(b=>b.onclick=()=>setFilter(b.dataset.filter));
+
+document.querySelectorAll("[data-category]").forEach(link=>link.onclick=()=>{
+  setFilter(link.dataset.category);
 });
+
+const shopSearch=$("shopSearch");
+const searchInput=$("searchInput");
+const searchPanel=$("searchPanel");
+const searchToggle=$("searchToggle");
+const clearSearch=$("clearSearch");
+
+function setQuery(value){
+  query=value;
+  if(shopSearch)shopSearch.value=value;
+  if(searchInput)searchInput.value=value;
+  render();
+}
+if(shopSearch)shopSearch.addEventListener("input",e=>setQuery(e.target.value));
+if(searchInput)searchInput.addEventListener("input",e=>setQuery(e.target.value));
+if(clearSearch)clearSearch.onclick=()=>setQuery("");
+if(searchToggle)searchToggle.onclick=()=>{
+  searchPanel.classList.toggle("open");
+  if(searchPanel.classList.contains("open"))searchInput.focus();
+};
+
+document.querySelectorAll(".category-strip a").forEach(link=>link.addEventListener("click",()=>{
+  setFilter(link.dataset.category);
+}));
 $("cartBtn").onclick=openCart;
 $("closeCart").onclick=closeCart;
 $("overlay").onclick=closeCart;
