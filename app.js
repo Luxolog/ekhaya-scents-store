@@ -1,14 +1,14 @@
 const products=[
-["isibindi","ISIBINDI","The Scent of Courage","him",285,"assets/Isibindi%201.png"],
-["umoya","UMOYA","The Scent of Spirit","him",285,"assets/Umoya%201.png"],
-["amandla","AMANDLA","The Scent of Strength","him",285,"assets/Amandla%201.png"],
-["ulonwabo","ULONWABO","The Scent of Happiness","her",285,"assets/Ubunono%201.png"],
-["ubulumko","UBULUMKO","The Scent of Wisdom","her",285,"assets/Ubulumko%201.png"],
-["ubunono","UBUNONO","The Scent of Elegance","her",285,"assets/Ubukhosi%201.png"],
-["reed1","Reed Diffuser","150ml Home Fragrance","home",299,"assets/Reed%20Diffuser.jpeg"],
-["reed2","Reed Diffuser","150ml Home Fragrance","home",299,"assets/Reed%20Diffuser.jpeg"],
-["white-luxury","White Luxury","Car Perfume","car",65,"assets/Car%20Perfume.jpeg"],
-["eucalyptus","Eucalyptus","Car Perfume","car",65,"assets/Car%20Perfume.jpeg"]
+["isibindi","ISIBINDI","The Scent of Courage","him",285,249,"assets/Isibindi%201.png"],
+["umoya","UMOYA","The Scent of Spirit","him",285,249,"assets/Umoya%201.png"],
+["amandla","AMANDLA","The Scent of Strength","him",285,249,"assets/Amandla%201.png"],
+["ulonwabo","ULONWABO","The Scent of Happiness","her",285,249,"assets/Ubunono%201.png"],
+["ubulumko","UBULUMKO","The Scent of Wisdom","her",285,249,"assets/Ubulumko%201.png"],
+["ubunono","UBUNONO","The Scent of Elegance","her",285,249,"assets/Ubukhosi%201.png"],
+["reed1","Reed Diffuser","150ml Home Fragrance","home",349,299,"assets/Reed%20Diffuser.jpeg"],
+["reed2","Reed Diffuser","150ml Home Fragrance","home",349,299,"assets/Reed%20Diffuser.jpeg"],
+["white-luxury","White Luxury","Car Perfume","car",65,50,"assets/Car%20Perfume.jpeg"],
+["eucalyptus","Eucalyptus","Car Perfume","car",65,50,"assets/Car%20Perfume.jpeg"]
 ];
 
 const scentDetails={
@@ -32,23 +32,35 @@ function render(list=filtered()){
     <article class="product-card">
       <div class="product-visual">
         <span class="tag">${categoryLabel(p[3])}</span>
-        <img src="${p[5]}" alt="${p[1]} — ${p[2]}" loading="lazy">
+        ${p[4]>p[5]?'<span class="sale-tag">SALE</span>':""}
+        <img src="${p[6]}" alt="${p[1]} — ${p[2]}" loading="lazy">
         <button class="btn add" onclick="add('${p[0]}')">Add to cart</button>
       </div>
-      <div class="info"><h3>${p[1]}</h3><p>${p[2]}</p><b>${money(p[4])}</b></div>
+      <div class="info"><h3>${p[1]}</h3><p>${p[2]}</p><div class="price">${p[4]>p[5]?'<del>'+money(p[4])+'</del>':""}<b>${money(p[5])}</b>${p[4]>p[5]?'<small>SAVE '+money(p[4]-p[5])+'</small>':""}</div></div>
     </article>`).join("");
 }
 
 function save(){localStorage.setItem("ekhaya_cart",JSON.stringify(cart));renderCart()}
 function add(id){const x=cart.find(i=>i.id===id);x?x.qty++:cart.push({id,qty:1});save();openCart()}
+function selectedShipping(){const el=document.querySelector('input[name="shipping"]:checked');return el?Number(el.value):75}
+function cartPricing(){
+  let originQty=0,subtotal=0;
+  cart.forEach(x=>{const p=products.find(y=>y[0]===x.id);if(!p)return;if(p[3]==="him"||p[3]==="her")originQty+=x.qty;else subtotal+=p[5]*x.qty});
+  const duoCount=Math.floor(originQty/2),singleCount=originQty%2;
+  subtotal+=duoCount*430+singleCount*249;
+  return {subtotal,duoCount,singleCount,originQty};
+}
 function renderCart(){
   $("cartItems").innerHTML=cart.length?cart.map(x=>{
     const p=products.find(y=>y[0]===x.id);
-    return `<div class="line"><img class="thumb-image" src="${p[5]}" alt="${p[1]}"><div><h4>${p[1]}</h4><p>${money(p[4])}</p><div class="qty"><button onclick="qty('${x.id}',-1)">−</button> ${x.qty} <button onclick="qty('${x.id}',1)">+</button></div></div><b>${money(p[4]*x.qty)}</b></div>`
+    return `<div class="line"><img class="thumb-image" src="${p[6]}" alt="${p[1]}"><div><h4>${p[1]}</h4><p><del>${money(p[4])}</del> <strong>${money(p[5])}</strong></p><div class="qty"><button onclick="qty('${x.id}',-1)">−</button> ${x.qty} <button onclick="qty('${x.id}',1)">+</button></div></div><b>${money(p[5]*x.qty)}</b></div>`
   }).join(""):'<p style="padding:30px;text-align:center;color:#777">Your cart is empty.</p>';
-  const total=cart.reduce((s,x)=>s+products.find(p=>p[0]===x.id)[4]*x.qty,0);
-  $("subtotal").textContent=money(total);
+  const pricing=cartPricing(),shipping=selectedShipping(),total=pricing.subtotal+shipping;
+  $("subtotal").textContent=money(pricing.subtotal);
+  $("shippingTotal").textContent=money(shipping);
+  $("cartTotal").textContent=money(total);
   $("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);
+  $("cartPromo").innerHTML=pricing.duoCount?'<strong>ORIGIN DUO:</strong> '+pricing.duoCount+' × 2 fragrances at R430 each — promotion applied.':"";
 }
 function qty(id,d){
   const x=cart.find(i=>i.id===id);
@@ -96,7 +108,8 @@ document.querySelectorAll(".category-strip a").forEach(link=>link.addEventListen
 $("cartBtn").onclick=openCart;
 $("closeCart").onclick=closeCart;
 $("overlay").onclick=closeCart;
-$("checkout").onclick=()=>alert("Secure online checkout will be connected next. WhatsApp ordering is available during testing.");
+document.querySelectorAll('input[name="shipping"]').forEach(r=>r.addEventListener("change",renderCart));
+$("checkout").onclick=()=>alert("Secure online checkout will be connected next. Your selected delivery option will be included.");
 document.querySelectorAll(".scent-name").forEach(btn=>btn.onclick=()=>openScent(btn.dataset.scent));
 document.querySelectorAll("[data-close-scent]").forEach(el=>el.onclick=closeScent);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeScent()});
@@ -116,10 +129,11 @@ function closeScent(){$("scentModal").classList.remove("open");$("scentModal").s
 
 $("whatsapp").onclick=()=>{
   if(!cart.length)return alert("Your cart is empty.");
+  const pricing=cartPricing(),shipping=selectedShipping();
   let text="Hello Ekhaya Scents, I would like to order:%0A"+cart.map(x=>{
     let p=products.find(y=>y[0]===x.id);
-    return x.qty+" x "+p[1]+" — "+money(p[4]*x.qty);
-  }).join("%0A");
+    return x.qty+" x "+p[1]+" — "+money(p[5]*x.qty);
+  }).join("%0A")+"%0A%0ASubtotal: "+money(pricing.subtotal)+"%0ADelivery: "+(shipping===75?"Locker to Locker":"Store to Door")+" — "+money(shipping)+"%0ATotal: "+money(pricing.subtotal+shipping);
   window.open("https://wa.me/27738468238?text="+encodeURIComponent(text),"_blank");
 };
 render();
