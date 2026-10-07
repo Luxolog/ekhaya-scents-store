@@ -104,6 +104,23 @@
     </div>
   </section>
 
+
+  <section class="reviews section" id="reviews">
+    <div class="reviews-heading">
+      <p class="eyebrow">GOOGLE REVIEWS</p>
+      <h2>Your experience matters.</h2>
+      <p>Thank you for choosing Ekhaya Scents. Read what customers are saying and share your own honest experience with us on Google.</p>
+      <div class="review-stars" aria-label="Google reviews">★★★★★</div>
+      <a class="btn" href="https://g.page/r/Cc7UmlM_-9a5EBM/review" target="_blank" rel="noopener">Leave a Google Review</a>
+    </div>
+    <div class="review-card">
+      <span>EKHAYA SCENTS</span>
+      <strong>THE SCENT OF ORIGIN.</strong>
+      <p>Real customer experiences help people discover our fragrances with confidence.</p>
+      <a href="https://g.page/r/Cc7UmlM_-9a5EBM/review" target="_blank" rel="noopener">View / leave reviews on Google →</a>
+    </div>
+  </section>
+
   <section class="story" id="about">
     <div>
       <p class="eyebrow">OUR STORY</p>
@@ -169,6 +186,23 @@
   </div>
 </aside>
 <div id="overlay"></div>
+
+<div id="checkoutModal" class="checkout-modal" aria-hidden="true">
+  <div class="checkout-backdrop" data-close-checkout></div>
+  <div class="checkout-card" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+    <button class="checkout-close" type="button" data-close-checkout aria-label="Close checkout">×</button>
+    <p class="eyebrow">SECURE CHECKOUT</p>
+    <h2 id="checkoutTitle">Complete your order.</h2>
+    <p class="checkout-note">Your cart and selected delivery option will be carried into Payfast checkout.</p>
+    <form id="checkoutForm">
+      <label>Full name<input id="checkoutName" name="name" required autocomplete="name"></label>
+      <label>Email<input id="checkoutEmail" name="email" type="email" required autocomplete="email"></label>
+      <button class="btn full" type="submit">Continue to Payfast</button>
+      <p id="checkoutStatus" class="checkout-status" role="status"></p>
+    </form>
+  </div>
+</div>
+
 
 <div id="scentModal" class="scent-modal" aria-hidden="true">
   <div class="scent-modal-backdrop" data-close-scent></div>
