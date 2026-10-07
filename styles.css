@@ -199,3 +199,29 @@ footer h4{font-size:8px;letter-spacing:2px;margin:0 0 12px;color:#fff}
 #checkout{margin-top:14px}
 
 .reseller-link{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--ink);padding:8px 11px;text-decoration:none!important;font-size:8px!important;letter-spacing:1.5px;font-weight:bold;margin-right:4px}.reseller-link:hover{background:#111;color:#fff}@media(max-width:560px){.reseller-link{padding:7px 8px;font-size:7px!important}}
+
+/* Google Reviews */
+.reviews{display:grid;grid-template-columns:1.2fr .8fr;gap:70px;align-items:center;background:#fff}
+.reviews-heading>p:not(.eyebrow){color:var(--muted);max-width:560px}
+.review-stars{font-size:20px;letter-spacing:4px;color:var(--gold);margin:18px 0 22px}
+.review-card{background:#171614;color:#fff;padding:42px}
+.review-card span{font-size:8px;letter-spacing:2.5px;color:#d4b36f}
+.review-card strong{display:block;font:30px Georgia;margin:14px 0}
+.review-card p{color:#c9c3bb;font-size:12px}
+.review-card a{color:#fff;font-size:10px;font-weight:bold;text-decoration:none}
+.review-card a:hover{color:#d4b36f}
+
+/* Secure checkout modal */
+.checkout-modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:24px}
+.checkout-modal.open{display:flex}
+.checkout-backdrop{position:absolute;inset:0;background:#000b;backdrop-filter:blur(4px)}
+.checkout-card{position:relative;z-index:1;width:min(560px,100%);background:#fffdf9;padding:46px;box-shadow:0 25px 80px #0005}
+.checkout-close{position:absolute;right:18px;top:14px;border:0;background:none;font-size:28px;cursor:pointer}
+.checkout-card h2{font-size:42px;margin-bottom:10px}
+.checkout-note{color:var(--muted);font-size:12px;margin-bottom:24px}
+.checkout-card label{display:block;font-size:9px;letter-spacing:1.5px;font-weight:bold;margin:0 0 16px}
+.checkout-card input{display:block;width:100%;border:1px solid var(--line);background:#fff;padding:13px;margin-top:7px;font-size:13px;outline:none}
+.checkout-card input:focus{border-color:#111}
+.checkout-status{font-size:10px;color:#8a6d35;line-height:1.5;margin:12px 0 0}
+@media(max-width:900px){.reviews{grid-template-columns:1fr;gap:40px}}
+@media(max-width:560px){.reviews{padding:65px 25px}.checkout-card{padding:38px 24px}.checkout-card h2{font-size:36px}}
