@@ -21,6 +21,10 @@ const scentDetails={
 };
 
 let cart=JSON.parse(localStorage.getItem("ekhaya_cart")||"[]");let activeFilter="all";let query="";
+const reseller=JSON.parse(localStorage.getItem("ekhaya_reseller")||"null");
+const isReseller=!!(reseller&&reseller.tag==="RESELLER");
+function resellerPrice(p,qty){if(!isReseller)return p[5];if(p[3]==="him"||p[3]==="her")return qty>=16?130:qty>=5?135:p[5];if(p[3]==="home")return qty>=5?190:p[5];if(p[3]==="car")return qty>=25?25:qty>=15?30:qty>=10?35:p[5];return p[5]}
+function resellerTierText(p){if(p[3]==="him"||p[3]==="her")return "5–15 R135 | 16–20 R130";if(p[3]==="home")return "5+ R190";if(p[3]==="car")return "10 R35 | 15 R30 | 25 R25";return ""}
 const money=n=>"R"+n.toFixed(2);
 const $=id=>document.getElementById(id);
 
@@ -44,6 +48,7 @@ function save(){localStorage.setItem("ekhaya_cart",JSON.stringify(cart));renderC
 function add(id){const x=cart.find(i=>i.id===id);x?x.qty++:cart.push({id,qty:1});save();openCart()}
 function selectedShipping(){const el=document.querySelector('input[name="shipping"]:checked');return el?Number(el.value):75}
 function cartPricing(){
+  if(isReseller){let subtotal=0;cart.forEach(x=>{const p=products.find(y=>y[0]===x.id);if(p)subtotal+=resellerPrice(p,x.qty)*x.qty});return {subtotal,duoCount:0,singleCount:0,originQty:0}}
   let originQty=0,subtotal=0;
   cart.forEach(x=>{const p=products.find(y=>y[0]===x.id);if(!p)return;if(p[3]==="him"||p[3]==="her")originQty+=x.qty;else subtotal+=p[5]*x.qty});
   const duoCount=Math.floor(originQty/2),singleCount=originQty%2;
@@ -52,15 +57,15 @@ function cartPricing(){
 }
 function renderCart(){
   $("cartItems").innerHTML=cart.length?cart.map(x=>{
-    const p=products.find(y=>y[0]===x.id);
-    return `<div class="line"><img class="thumb-image" src="${p[6]}" alt="${p[1]}"><div><h4>${p[1]}</h4><p><del>${money(p[4])}</del> <strong>${money(p[5])}</strong></p><div class="qty"><button onclick="qty('${x.id}',-1)">−</button> ${x.qty} <button onclick="qty('${x.id}',1)">+</button></div></div><b>${money(p[5]*x.qty)}</b></div>`
+    const p=products.find(y=>y[0]===x.id);const unit=resellerPrice(p,x.qty);
+    return `<div class="line"><img class="thumb-image" src="${p[6]}" alt="${p[1]}"><div><h4>${p[1]}</h4><p>${isReseller?"<strong>RESELLER PRICE</strong>":"<del>"+money(p[4])+"</del> <strong>"+money(p[5])+"</strong>"}</p><div class="qty"><button onclick="qty('${x.id}',-1)">−</button> ${x.qty} <button onclick="qty('${x.id}',1)">+</button></div></div><b>${money(p[5]*x.qty)}</b></div>`
   }).join(""):'<p style="padding:30px;text-align:center;color:#777">Your cart is empty.</p>';
   const pricing=cartPricing(),shipping=selectedShipping(),total=pricing.subtotal+shipping;
   $("subtotal").textContent=money(pricing.subtotal);
   $("shippingTotal").textContent=money(shipping);
   $("cartTotal").textContent=money(total);
   $("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);
-  $("cartPromo").innerHTML=pricing.duoCount?'<strong>ORIGIN DUO:</strong> '+pricing.duoCount+' × 2 fragrances at R430 each — promotion applied.':"";
+  $("cartPromo").innerHTML=isReseller?'<strong>RESELLER ACCOUNT ACTIVE</strong> — reseller pricing is applied automatically.':pricing.duoCount?'<strong>ORIGIN DUO:</strong> '+pricing.duoCount+' × 2 fragrances at R430 each — promotion applied.':"";
 }
 function qty(id,d){
   const x=cart.find(i=>i.id===id);
@@ -132,7 +137,7 @@ $("whatsapp").onclick=()=>{
   const pricing=cartPricing(),shipping=selectedShipping();
   let text="Hello Ekhaya Scents, I would like to order:%0A"+cart.map(x=>{
     let p=products.find(y=>y[0]===x.id);
-    return x.qty+" x "+p[1]+" — "+money(p[5]*x.qty);
+    return x.qty+" x "+p[1]+" — "+money(resellerPrice(p,x.qty)*x.qty);
   }).join("%0A")+"%0A%0ASubtotal: "+money(pricing.subtotal)+"%0ADelivery: "+(shipping===75?"Locker to Locker":"Store to Door")+" — "+money(shipping)+"%0ATotal: "+money(pricing.subtotal+shipping);
   window.open("https://wa.me/27738468238?text="+encodeURIComponent(text),"_blank");
 };
