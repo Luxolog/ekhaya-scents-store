@@ -176,3 +176,5 @@ footer h4{font-size:9px;letter-spacing:2px;margin-top:0}
 .shipping-box input{accent-color:#111}
 .cart-foot>div:not(.cart-promo):not(.shipping-box){margin-top:7px;font-size:11px}
 .cart-foot .cart-total{border-top:1px solid var(--line);margin-top:12px!important;padding-top:12px;font-size:15px!important}
+
+.story-tagline{font-family:Arial,sans-serif;font-size:15px;line-height:1.45;letter-spacing:1.4px;font-weight:700;color:var(--ink);margin:0 0 16px;max-width:560px}
