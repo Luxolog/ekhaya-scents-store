@@ -7,8 +7,7 @@ const products=[
 ["ubunono","UBUNONO","The Scent of Elegance","her",285,249,"assets/Ubukhosi%201.png"],
 ["reed1","Reed Diffuser","150ml Home Fragrance","home",349,299,"assets/Reed%20Diffuser.jpeg"],
 ["reed2","Reed Diffuser","150ml Home Fragrance","home",349,299,"assets/Reed%20Diffuser.jpeg"],
-["white-luxury","White Luxury","Car Perfume","car",65,50,"assets/Car%20Perfume.jpeg"],
-["eucalyptus","Eucalyptus","Car Perfume","car",65,50,"assets/Car%20Perfume.jpeg"]
+["car-perfume","Scented Car Perfume","7ml Fragrance for Your Car","car",65,50,"assets/Car%20Perfume.jpeg"]
 ];
 
 const scentDetails={
