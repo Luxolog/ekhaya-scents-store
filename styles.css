@@ -135,3 +135,30 @@ footer h4{font-size:9px;letter-spacing:2px;margin-top:0}
 .campaign-image img,.hero-image>img,.room>img{object-fit:contain!important;object-position:center!important}.campaign-image{background:#f0ebe3}.hero-image{background:#e7dfd2}.room{background:#eee8df}
 @media(max-width:1000px){.category-strip{grid-template-columns:repeat(2,1fr)}.category-strip a:nth-child(2){border-right:0}.category-strip a{border-bottom:1px solid var(--line)}.shop-top{align-items:start}.shop-search{width:240px}}
 @media(max-width:560px){.category-strip{grid-template-columns:1fr 1fr}.category-strip a{padding:19px 14px}.category-strip strong{font-size:16px}.category-strip small{font-size:8px}.shop-top{display:block}.shop-search{width:100%;margin-top:22px}.search-inner{padding:16px 20px}}
+
+/* Interactive Origin scent details */
+.scent-name{appearance:none;-webkit-appearance:none;border:0;border-right:1px solid #45413b;border-bottom:1px solid #45413b;background:transparent;color:#fff;text-align:left;padding:25px 22px;font:17px Georgia;cursor:pointer;transition:.2s}
+.scent-name:hover{background:#211f1c;color:#d4b36f}
+.scent-name:nth-child(even){border-right:0}
+.scent-name:nth-last-child(-n+2){border-bottom:0}
+.scent-modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px}
+.scent-modal.open{display:flex}
+.scent-modal-backdrop{position:absolute;inset:0;background:#000b;backdrop-filter:blur(4px)}
+.scent-modal-card{position:relative;z-index:1;width:min(680px,100%);background:#fffdf9;color:#111;padding:48px;box-shadow:0 25px 80px #0005}
+.scent-close{position:absolute;right:18px;top:14px;border:0;background:none;font-size:28px;cursor:pointer;color:#111}
+.scent-modal-card h2{font-size:52px;margin:0 0 8px}
+.scent-meaning{margin:0 0 18px;color:var(--gold);font:20px Georgia}
+.scent-description{color:var(--muted);max-width:580px;margin:0 0 28px}
+.note-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:28px}
+.note-grid div{padding:20px 16px;border-right:1px solid var(--line)}
+.note-grid div:last-child{border-right:0}
+.note-grid span{display:block;font-size:8px;letter-spacing:2px;color:var(--gold);font-weight:bold;margin-bottom:10px}
+.note-grid strong{display:block;font:14px Georgia;line-height:1.5;font-weight:500}
+@media(max-width:560px){
+  .scent-name{padding:20px 15px;font-size:15px}
+  .scent-modal-card{padding:38px 24px}
+  .scent-modal-card h2{font-size:40px}
+  .note-grid{grid-template-columns:1fr}
+  .note-grid div{border-right:0;border-bottom:1px solid var(--line)}
+  .note-grid div:last-child{border-bottom:0}
+}
