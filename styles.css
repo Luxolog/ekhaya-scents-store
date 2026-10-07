@@ -187,3 +187,5 @@ footer h4{font-size:9px;letter-spacing:2px;margin-top:0}
 .shipping-box{background:#f6f1e9;padding:14px 15px;border:1px solid var(--line);margin-bottom:15px}
 .cart-total span,.cart-total b{font-size:16px}
 #checkout{margin-top:14px}
+
+.reseller-link{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--ink);padding:8px 11px;text-decoration:none!important;font-size:8px!important;letter-spacing:1.5px;font-weight:bold;margin-right:4px}.reseller-link:hover{background:#111;color:#fff}@media(max-width:560px){.reseller-link{padding:7px 8px;font-size:7px!important}}
