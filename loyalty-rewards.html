@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Ekhaya Rewards — earn rewards on eligible Ekhaya Scents website purchases.">
+<title>Ekhaya Rewards | Ekhaya Scents</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="assets/Ekhaya%20Scents%20Logo%20Gold.png">
+<style>
+.rewards-hero{background:#171614;color:#fff;padding:76px 8vw;display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center}
+.rewards-hero h1{font-size:clamp(44px,6vw,76px);margin:0 0 20px}
+.rewards-hero p:not(.eyebrow){color:#d0cbc3;max-width:600px}
+.reward-panel{background:#fffdf9;color:#121212;border:1px solid #b3925c;padding:28px}
+.reward-panel h2{font-size:28px;margin:0 0 14px}
+.reward-panel label{display:block;font-size:12px;font-weight:bold;margin:15px 0 7px}
+.reward-panel input,.reward-panel select{width:100%;padding:12px;border:1px solid #ded8cf;background:#fff;font:inherit}
+.reward-panel button{margin-top:16px;width:100%}
+.reward-result{margin-top:18px;padding:16px;background:#f3eee6;border-left:3px solid #b3925c;line-height:1.7}
+.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.reward-step{border:1px solid #ded8cf;padding:24px;background:#fff}
+.reward-step .number{font:34px Georgia;color:#b3925c}
+.reward-step h3{font-size:22px;margin:10px 0}
+.reward-step p{font-size:13px;color:#706b63}
+.reward-note{padding:16px 18px;background:#f3eee6;border:1px solid #ded8cf;font-size:12px;color:#5d574e;line-height:1.7}
+.preview-flag{display:inline-block;border:1px solid #b3925c;color:#b3925c;padding:7px 10px;font-size:9px;letter-spacing:1.5px;font-weight:bold;margin-bottom:18px}
+@media(max-width:760px){.rewards-hero{grid-template-columns:1fr;padding:48px 6vw}.reward-grid{grid-template-columns:1fr}.rewards-hero h1{font-size:48px}}
+</style>
+</head>
+<body>
+<div class="announcement">THE SCENT OF ORIGIN</div>
+<header>
+  <a class="brand" href="index.html"><img src="assets/Ekhaya%20Scents%20Logo%20Gold.png" alt="Ekhaya Scents" class="brand-logo"></a>
+  <nav>
+    <a href="index.html#shop">Shop</a>
+    <a href="index.html#origin">Origin</a>
+    <a href="index.html#home-fragrance">Home Fragrance</a>
+    <a href="index.html#about">Our Story</a>
+    <a href="reseller.html">Resellers</a>
+  </nav>
+  <div class="header-actions"><a class="reseller-link" href="index.html#shop">SHOP</a></div>
+</header>
+<main>
+  <section class="rewards-hero">
+    <div>
+      <span class="preview-flag">LOYALTY PROGRAMME PREVIEW</span>
+      <p class="eyebrow">EKHAYA SCENTS LOYALTY</p>
+      <h1>Good scents.<br><i>Good rewards.</i></h1>
+      <p>Every qualifying purchase brings you closer to your next reward. The more you return to Ekhaya Scents, the more you earn.</p>
+      <a class="btn light" href="index.html#shop">Shop the collection</a>
+    </div>
+    <div class="reward-panel">
+      <p class="eyebrow">TRY THE REWARD CALCULATOR</p>
+      <h2>See what you could earn.</h2>
+      <p style="font-size:12px;color:#706b63">A preview calculator only. It does not check actual orders or add rewards to an account.</p>
+      <label for="purchaseNumber">Qualifying purchase number</label>
+      <select id="purchaseNumber">
+        <option value="1">1st purchase</option><option value="2">2nd purchase</option><option value="3">3rd purchase</option><option value="4">4th purchase</option><option value="5">5th purchase</option><option value="6">6th purchase</option><option value="7">7th purchase</option><option value="8">8th purchase</option><option value="9">9th purchase</option><option value="10">10th purchase</option><option value="11">11th purchase</option><option value="12">12th purchase</option><option value="13">13th purchase</option><option value="14">14th purchase</option><option value="15">15th purchase</option><option value="16">16th purchase</option><option value="17">17th purchase</option><option value="18">18th purchase</option><option value="19">19th purchase</option><option value="20">20th purchase</option>
+      </select>
+      <label for="productSpend">Eligible product subtotal (R)</label>
+      <input id="productSpend" type="number" min="0" step="0.01" value="285" inputmode="decimal">
+      <button class="btn" id="calculateReward" type="button">Calculate preview</button>
+      <div class="reward-result" id="rewardResult" role="status" aria-live="polite">Your estimated reward will appear here.</div>
+    </div>
+  </section>
+  <section class="section">
+    <p class="eyebrow">HOW IT WORKS</p>
+    <h2>Rewards for coming back.</h2>
+    <div class="reward-grid">
+      <article class="reward-step"><div class="number">01–04</div><h3>Earn 3%</h3><p>On each of your first four qualifying website purchases.</p></article>
+      <article class="reward-step"><div class="number">05+</div><h3>Earn 5%</h3><p>From your fifth qualifying website purchase onwards.</p></article>
+      <article class="reward-step"><div class="number">11, 14, 17…</div><h3>Free delivery</h3><p>Free delivery is earned on the 11th qualifying purchase, then every third purchase after that.</p></article>
+    </div>
+  </section>
+  <section class="section" style="padding-top:0">
+    <p class="eyebrow">REDEMPTION RULES</p>
+    <h2>Made for fragrance lovers.</h2>
+    <div class="reward-grid">
+      <article class="reward-step"><h3>R100 minimum</h3><p>Build up at least R100 in reward credit before redeeming.</p></article>
+      <article class="reward-step"><h3>Perfume only</h3><p>Reward credit can only be used towards eligible perfume products. It cannot be exchanged for cash.</p></article>
+      <article class="reward-step"><h3>Website orders only</h3><p>Only eligible Ekhaya Scents website purchases count. Takealot purchases and shipping charges are excluded.</p></article>
+    </div>
+    <p class="reward-note" style="margin-top:24px"><strong>Important:</strong> This GitHub Pages version is a visual and calculation preview. GitHub Pages is a static website, so it cannot securely maintain customer accounts, verify completed/refunded orders, send reward emails automatically, or enforce redemption at checkout. Those functions must be connected to a backend before the programme is launched. The calculator does not store your inputs.</p>
+  </section>
+</main>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><p class="footer-kicker">EKHAYA SCENTS</p><p class="footer-tagline">The Scent of Origin.</p><p class="footer-copy">A South African fragrance house creating signature scents for people, spaces and moments that matter.</p></div>
+    <div class="footer-links"><div><h4>SHOP</h4><a href="index.html#shop">Origin</a><a href="index.html#shop">Home Fragrance</a></div><div><h4>EXPLORE</h4><a href="index.html#about">Our Story</a><a href="reseller.html">Resellers</a><a href="loyalty-rewards.html">Ekhaya Rewards</a></div></div>
+    <div class="footer-contact"><h4>CONTACT</h4><a href="mailto:hello@ekhayascents.store">hello@ekhayascents.store</a><a href="https://wa.me/27648935154" target="_blank" rel="noopener">WhatsApp: 064 893 5154</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Ekhaya Scents. All rights reserved.</span><div><a href="return-refund-policy.html">Returns</a><a href="privacy-policy.html">Privacy</a><a href="terms-of-service.html">Terms</a><a href="shipping-policy.html">Shipping</a></div></div>
+</footer>
+<script>
+(function(){
+  const purchase = document.getElementById('purchaseNumber');
+  const spend = document.getElementById('productSpend');
+  const result = document.getElementById('rewardResult');
+  function calculate(){
+    const order = Math.max(1, Number(purchase.value) || 1);
+    const amount = Math.max(0, Number(spend.value) || 0);
+    const rate = order <= 4 ? 0.03 : 0.05;
+    const reward = Math.round((amount * rate + Number.EPSILON) * 100) / 100;
+    const freeDelivery = order >= 11 && (order - 11) % 3 === 0;
+    result.innerHTML = '<strong>Estimated reward: R' + reward.toFixed(2) + '</strong><br>Rate: ' + (rate * 100) + '% of eligible products only.<br>' + (freeDelivery ? '<strong>Free delivery milestone unlocked.</strong>' : 'No free-delivery milestone on this purchase.') + '<br><small>Shipping is excluded from the reward calculation.</small>';
+  }
+  document.getElementById('calculateReward').addEventListener('click', calculate);
+  purchase.addEventListener('change', calculate);
+  spend.addEventListener('input', calculate);
+  calculate();
+})();
+</script>
+</body>
+</html>
