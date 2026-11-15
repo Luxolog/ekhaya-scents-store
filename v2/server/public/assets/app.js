@@ -27,9 +27,9 @@ function sortProducts(rows){
 function renderProducts(){
  const query=searchTerm.toLocaleLowerCase();
  const searched=catalogue.filter(p=>!query||[p.name,p.sku,p.short_description,...(p.categories||[]).flatMap(c=>[c.name,c.slug])].some(v=>String(v||"").toLocaleLowerCase().includes(query)));
- const fragrance=searched.filter(p=>hasCategory(p,/origin|fragrance|perfume|him|her|men|women/i));
- const home=searched.filter(p=>hasCategory(p,/home|car|diffuser|linen|air-freshener/i));
  const supplies=searched.filter(p=>hasCategory(p,/oil|bottle|atomiser|atomizer|packaging|box|base|accessor|starter|kit|suppl/i));
+ const fragrance=searched.filter(p=>!supplies.includes(p)&&hasCategory(p,/origin|fragrance|perfume|him|her|men|women/i));
+ const home=searched.filter(p=>hasCategory(p,/home|car|diffuser|linen|air-freshener/i));
  const show=(id,rows)=>{const el=document.getElementById(id);if(el)el.innerHTML=rows.length?sortProducts(rows).map(card).join(""):emptyMessage();};
  const selected=activeCategory==="all"?fragrance:fragrance.filter(p=>p.categories?.some(c=>c.slug===activeCategory));
  const selectedByGender=selected.filter(p=>{const f=document.querySelector(".filter.active")?.dataset.filter||"all";return f==="all"||(f==="him"?hasCategory(p,/him|men/i):hasCategory(p,/her|women/i));});
