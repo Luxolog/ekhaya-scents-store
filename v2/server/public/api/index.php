@@ -149,6 +149,8 @@ try {
  }
  if ($method==='POST' && preg_match('~/api/account/addresses/save/?$~',$path)) {
   Auth::start(); Auth::verifyCsrf(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
+  $active=$db()->prepare("SELECT id FROM customers WHERE id=? AND account_status='active' AND email_verified_at IS NOT NULL");
+  $active->execute([$id]); if (!$active->fetchColumn()) $json(['ok'=>false,'error'=>'authentication_required'],401);
   $d=$body(); $addressId=(int)($d['id'] ?? 0); $type=(string)($d['address_type'] ?? 'shipping');
   $allowedTypes=['billing','shipping','other'];
   $fields=['first_name'=>100,'last_name'=>100,'company'=>150,'phone'=>40,'address_1'=>190,'address_2'=>190,'city'=>100,'province'=>100,'postcode'=>20];
@@ -180,7 +182,7 @@ try {
  if ($method==='POST' && preg_match('~/api/account/addresses/delete/?$~',$path)) {
   Auth::start(); Auth::verifyCsrf(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
   $addressId=(int)($body()['id'] ?? 0); if ($addressId<1) $json(['ok'=>false,'error'=>'invalid_address_id'],422);
-  $q=$db()->prepare('DELETE FROM customer_addresses WHERE id=? AND customer_id=?'); $q->execute([$addressId,$id]);
+  $q=$db()->prepare("DELETE a FROM customer_addresses a JOIN customers c ON c.id=a.customer_id WHERE a.id=? AND a.customer_id=? AND c.account_status='active' AND c.email_verified_at IS NOT NULL"); $q->execute([$addressId,$id]);
   $json(['ok'=>true,'deleted'=>$q->rowCount()===1]);
  }
  if ($method==='GET' && preg_match('~/api/categories/?$~',$path)) {
