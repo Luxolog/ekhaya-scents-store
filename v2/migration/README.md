@@ -6,6 +6,7 @@ The toolkit targets the 14 November 2026 UpdraftPlus snapshot. The first utility
 - config.example.php: environment-based source/target connection template.
 - config.local.php: create on the server; never commit.
 - audit.php: read-only check of required source tables, row counts and database versions.
+- catalogue-preview.php: read-only extraction preview of published WooCommerce products, product metadata, category assignments and media attachment IDs. It never reads customer/order data and performs no writes.
 - .gitignore: excludes local secrets and generated reports.
 
 ## Safe setup
