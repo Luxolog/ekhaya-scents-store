@@ -1,4 +1,7 @@
-const cart = new Map();
+const CART_KEY="ekhaya_store_cart_v1";
+function readCart(){try{const rows=JSON.parse(localStorage.getItem(CART_KEY)||"[]");return new Map(rows.filter(x=>x&&x.id&&Number(x.qty)>0).map(x=>[String(x.id),{...x,id:String(x.id),qty:Math.min(99,Math.floor(Number(x.qty)))}]));}catch{return new Map();}}
+const cart=readCart();
+function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify([...cart.values()]));}catch{}}
 const money = n => new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR"}).format(Number(n||0));
 const esc = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let catalogue=[];
@@ -34,8 +37,8 @@ function renderCart(){
 }
 document.addEventListener("click",e=>{
  const add=e.target.closest("[data-add]");
- if(add){const p=catalogue.find(x=>String(x.id)===add.dataset.add);if(p){const current=cart.get(String(p.id))||{id:String(p.id),name:p.name,price:productPrice(p),qty:0};current.qty++;cart.set(String(p.id),current);renderCart();openCart();}}
- const remove=e.target.closest("[data-remove]");if(remove){cart.delete(remove.dataset.remove);renderCart();}
+ if(add){const p=catalogue.find(x=>String(x.id)===add.dataset.add);if(p){if(p.stock_status!=="in_stock")return;const current=cart.get(String(p.id))||{id:String(p.id),name:p.name,price:productPrice(p),qty:0};current.qty=Math.min(99,current.qty+1);cart.set(String(p.id),current);saveCart();renderCart();openCart();}}
+ const remove=e.target.closest("[data-remove]");if(remove){cart.delete(remove.dataset.remove);saveCart();renderCart();}
 });
 document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderProducts();}));
 const drawer=document.getElementById("cartDrawer"),scrim=document.getElementById("scrim");
