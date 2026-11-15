@@ -177,12 +177,21 @@ try {
   $category=trim((string)($_GET['category'] ?? ''));
   $search=trim((string)($_GET['search'] ?? ''));
   $limit=max(1,min(100,(int)($_GET['limit'] ?? 60)));
-  $sql="SELECT DISTINCT p.id,p.sku,p.name,p.slug,p.product_type,p.short_description,p.regular_price,p.sale_price,p.stock_status,p.stock_quantity,pi.source_path AS image_path FROM products p LEFT JOIN product_images pi ON pi.product_id=p.id AND pi.is_primary=1 WHERE p.status='published'";
+  $sql="SELECT DISTINCT p.id,p.sku,p.name,p.slug,p.product_type,p.short_description,p.regular_price,p.sale_price,p.stock_status,p.stock_quantity,pi.source_path AS image_path,(SELECT GROUP_CONCAT(CONCAT(c.id,':',c.name,':',c.slug) SEPARATOR '|') FROM product_categories pc JOIN categories c ON c.id=pc.category_id WHERE pc.product_id=p.id AND c.is_active=1) AS category_data FROM products p LEFT JOIN product_images pi ON pi.product_id=p.id AND pi.is_primary=1 WHERE p.status='published'";
   $params=[];
   if ($category!=='') { $sql.=" AND EXISTS (SELECT 1 FROM product_categories pc JOIN categories c ON c.id=pc.category_id WHERE pc.product_id=p.id AND c.slug=? AND c.is_active=1)"; $params[]=$category; }
   if ($search!=='') { $sql.=" AND (p.name LIKE ? OR p.sku LIKE ? OR p.short_description LIKE ?)"; $term='%'.$search.'%'; array_push($params,$term,$term,$term); }
   $sql.=" ORDER BY p.created_at DESC,p.id DESC LIMIT ".$limit;
   $q=$db()->prepare($sql); $q->execute($params); $products=$q->fetchAll();
+  foreach ($products as &$product) {
+   $product['categories']=[];
+   if (!empty($product['category_data'])) foreach (explode('|',$product['category_data']) as $part) {
+    $bits=explode(':',$part,3);
+    if (count($bits)===3) $product['categories'][]=['id'=>(int)$bits[0],'name'=>$bits[1],'slug'=>$bits[2]];
+   }
+   unset($product['category_data']);
+  }
+  unset($product);
   $json(['ok'=>true,'products'=>$products]);
  }
  if ($method==='GET' && preg_match('~/api/products/([a-zA-Z0-9-]+)/?$~',$path,$match)) {
