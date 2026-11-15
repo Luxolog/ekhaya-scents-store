@@ -48,7 +48,7 @@ try {
  $legacyLookup=$dst->prepare("SELECT target_id FROM legacy_id_map WHERE source_system='woocommerce' AND source_entity='category' AND source_id=? AND target_entity='category' LIMIT 1");
  $legacyInsert=$dst->prepare("INSERT INTO legacy_id_map(source_system,source_entity,source_id,target_entity,target_id,batch_id,source_checksum) VALUES('woocommerce','category',?,'category',?,?,?) ON DUPLICATE KEY UPDATE target_id=VALUES(target_id),batch_id=VALUES(batch_id),source_checksum=VALUES(source_checksum)");
  $pending=$categoryRows;
- for($pass=0;$pass<3 && $pending;$pass++){
+ for($pass=0;$pass<=count($categoryRows) && $pending;$pass++){
   $next=[];
   foreach($pending as $cat){
    $sid=(string)$cat['term_id']; $parent=(int)$cat['parent']; $parentId=null;
@@ -80,6 +80,11 @@ try {
  $linkInsert=$dst->prepare('INSERT IGNORE INTO product_categories(product_id,category_id) VALUES(?,?)');
  $imageInsert=$dst->prepare('INSERT INTO product_images(product_id,source_path,alt_text,sort_order,is_primary) VALUES(?,?,?,?,?)');
  $imageExists=$dst->prepare('SELECT id FROM product_images WHERE product_id=? AND source_path=? LIMIT 1');
+ $variantPosts=$src->prepare("SELECT ID,post_title FROM {$posts} WHERE post_type='product_variation' AND post_status IN ('publish','private') AND post_parent=? ORDER BY menu_order,ID");
+ $variantInsert=$dst->prepare('INSERT INTO product_variants(product_id,sku,option_values,regular_price,sale_price,stock_quantity,stock_status) VALUES(?,?,?,?,?,?,?)');
+ $variantMapLookup=$dst->prepare("SELECT target_id FROM legacy_id_map WHERE source_system='woocommerce' AND source_entity='product_variation' AND source_id=? AND target_entity='variant' LIMIT 1");
+ $variantMapInsert=$dst->prepare("INSERT INTO legacy_id_map(source_system,source_entity,source_id,target_entity,target_id,batch_id,source_checksum) VALUES('woocommerce','product_variation',?,'variant',?,?,?) ON DUPLICATE KEY UPDATE target_id=VALUES(target_id),batch_id=VALUES(batch_id),source_checksum=VALUES(source_checksum)");
+ $productTypeUpdate=$dst->prepare("UPDATE products SET product_type='variable' WHERE id=? AND product_type='simple'");
  $attachmentMeta=$dst->prepare('SELECT meta_value FROM '.$meta.' WHERE post_id=? AND meta_key='_wp_attached_file' LIMIT 1');
  $mediaPath=$dst->prepare("SELECT meta_value FROM {$meta} WHERE post_id=? AND meta_key='_wp_attached_file' LIMIT 1");
  $counts=['new'=>0,'mapped'=>0,'skipped_existing'=>0,'category_links'=>0,'images_mapped'=>0]; $lastId=$checkpoint;
@@ -94,13 +99,14 @@ try {
   $weight=is_numeric($m['_weight']??null)?(float)$m['_weight']:null;
   $virtual=($m['_virtual']??'no')==='yes';
   $record=['ID'=>$id,'title'=>$p['post_title'],'slug'=>$slug,'sku'=>$sku,'regular'=>$regular,'sale'=>$sale,'status'=>$stockStatus,'stock'=>$stock,'date'=>$p['post_date']];
+  $variantPosts->execute([$id]);$sourceVariants=$variantPosts->fetchAll();
   $productMapLookup->execute([(string)$id]);$mapped=$productMapLookup->fetchColumn();
   if($mapped){$counts['mapped']++;continue;}
   $productLookup->execute([$slug,$sku]);$existing=$productLookup->fetchColumn();
   if($existing){$targetId=(int)$existing;$counts['skipped_existing']++;}
   elseif($dry){$targetId=-$id;$counts['new']++;}
   else{
-   $productInsert->execute([$sku!==''?$sku:null,$p['post_title'],$slug,'simple',$p['post_content'],$p['post_excerpt'],$regular,$sale,$manage,$stock,$stockStatus,$weight,$virtual?0:1,$p['post_date']]);
+   $productInsert->execute([$sku!==''?$sku:null,$p['post_title'],$slug,$sourceVariants?'variable':'simple',$p['post_content'],$p['post_excerpt'],$regular,$sale,$manage,$stock,$stockStatus,$weight,$virtual?0:1,$p['post_date']]);
    $targetId=(int)$dst->lastInsertId();$counts['new']++;
   }
   if($commit){
@@ -117,6 +123,22 @@ try {
     $path='uploads/'.ltrim((string)$relative,'/');
     $imageExists->execute([$targetId,$path]);if($imageExists->fetchColumn())continue;
     $imageInsert->execute([$targetId,$path,$p['post_title'],$index,$index===0?1:0]);$counts['images_mapped']++;
+   }
+   if($sourceVariants){
+    $productTypeUpdate->execute([$targetId]);
+    foreach($sourceVariants as $variant){
+     $vid=(int)$variant['ID'];$variantMapLookup->execute([(string)$vid]);if($variantMapLookup->fetchColumn())continue;
+     $vm=sourceMeta($src,$meta,$vid);$optionsQ=$src->prepare("SELECT meta_key,meta_value FROM {$meta} WHERE post_id=? AND meta_key LIKE 'attribute_%'");$optionsQ->execute([$vid]);
+     $options=[];foreach($optionsQ->fetchAll() as $option)$options[$option['meta_key']]=$option['meta_value'];
+     $vsku=trim((string)($vm['_sku']??''));$vregular=is_numeric($vm['_regular_price']??null)?(float)$vm['_regular_price']:$regular;
+     $vsale=is_numeric($vm['_sale_price']??null)&&$vm['_sale_price']!==''?(float)$vm['_sale_price']:null;
+     $vstock=is_numeric($vm['_stock']??null)?(float)$vm['_stock']:$stock;
+     $vstatus=($vm['_stock_status']??$stockStatus);
+     if($vstatus==='instock')$vstatus='in_stock';elseif($vstatus==='outofstock')$vstatus='out_of_stock';elseif($vstatus==='onbackorder')$vstatus='backorder';
+     $variantInsert->execute([$targetId,$vsku!==''?$vsku:null,json_encode($options,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE),$vregular,$vsale,$vstock,$vstatus]);
+     $variantId=(int)$dst->lastInsertId();
+     $variantMapInsert->execute([(string)$vid,$variantId,$batchId,checksum(['id'=>$vid,'sku'=>$vsku,'options'=>$options,'regular'=>$vregular,'sale'=>$vsale])]);
+    }
    }
   }
  }
