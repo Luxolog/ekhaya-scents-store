@@ -122,8 +122,12 @@ try {
  }
  if ($method==='GET' && preg_match('~/api/account/orders/?$~',$path)) {
   Auth::start(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
-  $q=$db()->prepare('SELECT id,order_number,status,currency,subtotal,discount_total,shipping_total,tax_total,grand_total,created_at,paid_at,completed_at FROM orders WHERE customer_id=? ORDER BY created_at DESC,id DESC LIMIT 50');
+  $q=$db()->prepare("SELECT o.id,o.order_number,o.status,o.currency,o.subtotal,o.discount_total,o.shipping_total,o.tax_total,o.grand_total,o.created_at,o.paid_at,o.completed_at FROM orders o JOIN customers c ON c.id=o.customer_id WHERE o.customer_id=? AND c.account_status='active' AND c.email_verified_at IS NOT NULL ORDER BY o.created_at DESC,o.id DESC LIMIT 50");
   $q->execute([$id]); $orders=$q->fetchAll();
+  if (!$orders) {
+   $active=$db()->prepare("SELECT id FROM customers WHERE id=? AND account_status='active' AND email_verified_at IS NOT NULL");
+   $active->execute([$id]); if (!$active->fetchColumn()) $json(['ok'=>false,'error'=>'authentication_required'],401);
+  }
   if ($orders) {
    $ids=array_map(static fn($o)=>(int)$o['id'],$orders); $marks=implode(',',array_fill(0,count($ids),'?'));
    $items=$db()->prepare("SELECT order_id,product_name_snapshot,sku_snapshot,quantity,unit_price,line_total FROM order_items WHERE order_id IN ($marks) ORDER BY id");
@@ -135,8 +139,13 @@ try {
  }
  if ($method==='GET' && preg_match('~/api/account/addresses/?$~',$path)) {
   Auth::start(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
-  $q=$db()->prepare('SELECT id,address_type,first_name,last_name,company,phone,address_1,address_2,city,province,postcode,country_code,is_default FROM customer_addresses WHERE customer_id=? ORDER BY is_default DESC,id DESC');
-  $q->execute([$id]); $json(['ok'=>true,'addresses'=>$q->fetchAll()]);
+  $q=$db()->prepare("SELECT a.id,a.address_type,a.first_name,a.last_name,a.company,a.phone,a.address_1,a.address_2,a.city,a.province,a.postcode,a.country_code,a.is_default FROM customer_addresses a JOIN customers c ON c.id=a.customer_id WHERE a.customer_id=? AND c.account_status='active' AND c.email_verified_at IS NOT NULL ORDER BY a.is_default DESC,a.id DESC");
+  $q->execute([$id]); $addresses=$q->fetchAll();
+  if (!$addresses) {
+   $active=$db()->prepare("SELECT id FROM customers WHERE id=? AND account_status='active' AND email_verified_at IS NOT NULL");
+   $active->execute([$id]); if (!$active->fetchColumn()) $json(['ok'=>false,'error'=>'authentication_required'],401);
+  }
+  $json(['ok'=>true,'addresses'=>$addresses]);
  }
  if ($method==='POST' && preg_match('~/api/account/addresses/save/?$~',$path)) {
   Auth::start(); Auth::verifyCsrf(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
