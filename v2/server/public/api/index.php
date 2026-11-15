@@ -120,6 +120,19 @@ try {
   $q->execute([$first ?: null,$last ?: null,$phone ?: null,$id]);
   $json(['ok'=>true,'message'=>'profile_updated']);
  }
+ if ($method==='GET' && preg_match('~/api/account/orders/?$~',$path)) {
+  Auth::start(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
+  $q=$db()->prepare('SELECT id,order_number,status,currency,subtotal,discount_total,shipping_total,tax_total,grand_total,created_at,paid_at,completed_at FROM orders WHERE customer_id=? ORDER BY created_at DESC,id DESC LIMIT 50');
+  $q->execute([$id]); $orders=$q->fetchAll();
+  if ($orders) {
+   $ids=array_map(static fn($o)=>(int)$o['id'],$orders); $marks=implode(',',array_fill(0,count($ids),'?'));
+   $items=$db()->prepare("SELECT order_id,product_name_snapshot,sku_snapshot,quantity,unit_price,line_total FROM order_items WHERE order_id IN ($marks) ORDER BY id");
+   $items->execute($ids); $byOrder=[];
+   foreach ($items->fetchAll() as $item) { $byOrder[(int)$item['order_id']][]=$item; }
+   foreach ($orders as &$order) { $order['items']=$byOrder[(int)$order['id']] ?? []; unset($order['id']); } unset($order);
+  }
+  $json(['ok'=>true,'orders'=>$orders]);
+ }
  if ($method==='GET' && preg_match('~/api/account/addresses/?$~',$path)) {
   Auth::start(); $id=(int)($_SESSION['customer_id'] ?? 0); if (!$id) $json(['ok'=>false,'error'=>'authentication_required'],401);
   $q=$db()->prepare('SELECT id,address_type,first_name,last_name,company,phone,address_1,address_2,city,province,postcode,country_code,is_default FROM customer_addresses WHERE customer_id=? ORDER BY is_default DESC,id DESC');
