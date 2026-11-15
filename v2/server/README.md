@@ -6,7 +6,8 @@ PHP 8.2+, PDO MySQL. The API and account area are an early staging foundation.
 Set the staging subdomain document root to `v2/server/public`. This folder now contains the storefront entry page, assets, account pages, and API front controller. Keep `src`, `config.local.php`, and secrets outside the public directory.
 
 ## Configure
-- Apply `../database/schema.sql`, then `../database/auth-additions.sql`.
+- Apply `../database/schema.sql`, then `../database/auth-additions.sql`, then `../database/marketing-additions.sql`.
+- Read `CUSTOMER-ENGAGEMENT.md` for lifecycle, consent, campaign, queue and launch-gate requirements. The seeded automation rules and templates are inactive; this migration does not send email.
 - Copy `config.example.php` to `config.local.php` in `v2/server`.
 - Set database credentials and a long random `EKHAYA_RATE_LIMIT_SECRET` through hosting environment variables.
 - Set `EKHAYA_ALLOWED_ORIGINS` and `EKHAYA_BASE_URL` to the exact staging origin.
