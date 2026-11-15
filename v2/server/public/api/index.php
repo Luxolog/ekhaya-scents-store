@@ -169,9 +169,34 @@ try {
   $q=$db()->prepare('DELETE FROM customer_addresses WHERE id=? AND customer_id=?'); $q->execute([$addressId,$id]);
   $json(['ok'=>true,'deleted'=>$q->rowCount()===1]);
  }
+ if ($method==='GET' && preg_match('~/api/categories/?$~',$path)) {
+  $categories=$db()->query("SELECT c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order,COUNT(DISTINCT pc.product_id) AS product_count FROM categories c LEFT JOIN product_categories pc ON pc.category_id=c.id LEFT JOIN products p ON p.id=pc.product_id AND p.status='published' WHERE c.is_active=1 GROUP BY c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order ORDER BY c.sort_order,c.name")->fetchAll();
+  $json(['ok'=>true,'categories'=>$categories]);
+ }
  if ($method==='GET' && preg_match('~/api/products/?$~',$path)) {
-  $products=$db()->query("SELECT p.id,p.sku,p.name,p.slug,p.product_type,p.short_description,p.regular_price,p.sale_price,p.stock_status,p.stock_quantity FROM products p WHERE p.status='published' ORDER BY p.created_at DESC,p.id DESC LIMIT 100")->fetchAll();
+  $category=trim((string)($_GET['category'] ?? ''));
+  $search=trim((string)($_GET['search'] ?? ''));
+  $limit=max(1,min(100,(int)($_GET['limit'] ?? 60)));
+  $sql="SELECT DISTINCT p.id,p.sku,p.name,p.slug,p.product_type,p.short_description,p.regular_price,p.sale_price,p.stock_status,p.stock_quantity,pi.source_path AS image_path FROM products p LEFT JOIN product_images pi ON pi.product_id=p.id AND pi.is_primary=1 WHERE p.status='published'";
+  $params=[];
+  if ($category!=='') { $sql.=" AND EXISTS (SELECT 1 FROM product_categories pc JOIN categories c ON c.id=pc.category_id WHERE pc.product_id=p.id AND c.slug=? AND c.is_active=1)"; $params[]=$category; }
+  if ($search!=='') { $sql.=" AND (p.name LIKE ? OR p.sku LIKE ? OR p.short_description LIKE ?)"; $term='%'.$search.'%'; array_push($params,$term,$term,$term); }
+  $sql.=" ORDER BY p.created_at DESC,p.id DESC LIMIT ".$limit;
+  $q=$db()->prepare($sql); $q->execute($params); $products=$q->fetchAll();
   $json(['ok'=>true,'products'=>$products]);
+ }
+ if ($method==='GET' && preg_match('~/api/products/([a-zA-Z0-9-]+)/?$~',$path,$match)) {
+  $slug=$match[1];
+  $q=$db()->prepare("SELECT p.id,p.sku,p.name,p.slug,p.product_type,p.description,p.short_description,p.brand_line,p.regular_price,p.sale_price,p.stock_status,p.stock_quantity,p.weight_kg,p.requires_shipping FROM products p WHERE p.slug=? AND p.status='published' LIMIT 1");
+  $q->execute([$slug]); $product=$q->fetch();
+  if (!$product) $json(['ok'=>false,'error'=>'product_not_found'],404);
+  $q=$db()->prepare('SELECT source_path,alt_text,sort_order,is_primary FROM product_images WHERE product_id=? ORDER BY is_primary DESC,sort_order,id');
+  $q->execute([(int)$product['id']]); $product['images']=$q->fetchAll();
+  $q=$db()->prepare('SELECT v.id,v.sku,v.option_values,v.regular_price,v.sale_price,v.stock_quantity,v.stock_status FROM product_variants v WHERE v.product_id=? ORDER BY v.id');
+  $q->execute([(int)$product['id']]); $product['variants']=$q->fetchAll();
+  $q=$db()->prepare('SELECT c.id,c.name,c.slug FROM categories c JOIN product_categories pc ON pc.category_id=c.id WHERE pc.product_id=? AND c.is_active=1 ORDER BY c.sort_order,c.name');
+  $q->execute([(int)$product['id']]); $product['categories']=$q->fetchAll();
+  $json(['ok'=>true,'product'=>$product]);
  }
  $json(['ok'=>false,'error'=>'not_found'],404);
 } catch (Throwable $e) {
