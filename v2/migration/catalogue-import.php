@@ -149,7 +149,7 @@ try {
   }
  }
  if($commit){
-  $dst->prepare("UPDATE migration_batches SET status='validated',completed_at=UTC_TIMESTAMP(),notes=CONCAT(COALESCE(notes,''),' | Last source product ID: ',?) WHERE id=?")->execute([(string)$lastId,$batchId]);
+  $dst->prepare("UPDATE migration_batches SET status='committed',completed_at=UTC_TIMESTAMP(),notes=CONCAT(COALESCE(notes,''),' | Last source product ID: ',?) WHERE id=?")->execute([(string)$lastId,$batchId]);
  }
  echo "Products processed: ".count($products)." | Last source ID: {$lastId}\n";
  foreach($counts as $k=>$v)echo ucfirst(str_replace('_',' ',$k)).": {$v}\n";
