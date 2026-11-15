@@ -21,7 +21,10 @@ Set the staging subdomain document root to `v2/server/public`. This folder now c
 - GET `/api/account/addresses`
 - POST `/api/account/addresses/save`, `/api/account/addresses/delete`
 - GET `/api/account/orders` (latest 50 orders with item snapshots)
-- GET `/api/products`, `/api/health`, `/api`
+- GET `/api/categories`
+- GET `/api/products` (supports `category`, `search`, and `limit` query parameters)
+- GET `/api/products/{slug}` (product details, images, variants and categories)
+- GET `/api/health`, `/api`
 
 ## Customer pages
 - `/account.html`: sign in, profile, saved addresses, order history, sign out
