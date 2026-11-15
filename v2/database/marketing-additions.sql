@@ -18,6 +18,16 @@ CREATE TABLE IF NOT EXISTS email_templates (
   KEY idx_email_template_active (template_key,is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Inactive starter templates. Replace placeholders using a trusted renderer before use.
+INSERT INTO email_templates
+(template_key,name,message_type,subject_template,html_body,text_body,version,is_active)
+VALUES
+('first-purchase-day-7','First purchase follow-up - day 7','marketing','How is your Ekhaya experience, {{first_name}}?','<p>Hello {{first_name}},</p><p>Thank you for choosing Ekhaya Scents. We hope you are enjoying your purchase.</p><p>If you need assistance, contact hello@ekhayascents.co.za.</p><p><a href="{{unsubscribe_url}}">Unsubscribe</a></p>','Hello {{first_name}}, thank you for choosing Ekhaya Scents. We hope you are enjoying your purchase. For assistance contact hello@ekhayascents.co.za. Unsubscribe: {{unsubscribe_url}}',1,0),
+('first-purchase-day-15','First purchase follow-up - day 15','marketing','A little more from Ekhaya Scents','<p>Hello {{first_name}},</p><p>Explore more of the Ekhaya collection when you are ready.</p><p><a href="{{store_url}}">Explore Ekhaya Scents</a></p><p><a href="{{unsubscribe_url}}">Unsubscribe</a></p>','Hello {{first_name}}, explore more of the Ekhaya collection when you are ready: {{store_url}}. Unsubscribe: {{unsubscribe_url}}',1,0),
+('post-delivery-day-1','After-sales delivery check-in - day 1','automation','Your Ekhaya order has arrived','<p>Hello {{first_name}},</p><p>We hope your order arrived safely. If anything is not right, please contact hello@ekhayascents.co.za so our team can help.</p>','Hello {{first_name}}, we hope your order arrived safely. If anything is not right, contact hello@ekhayascents.co.za so our team can help.',1,0),
+('post-delivery-day-7','After-sales product care - day 7','automation','A few tips for enjoying your Ekhaya purchase','<p>Hello {{first_name}},</p><p>We hope you are enjoying your purchase. Visit your order details or contact hello@ekhayascents.co.za if you need product guidance.</p>','Hello {{first_name}}, we hope you are enjoying your purchase. For product guidance, contact hello@ekhayascents.co.za.',1,0)
+ON DUPLICATE KEY UPDATE template_key=VALUES(template_key);
+
 CREATE TABLE IF NOT EXISTS customer_events (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   customer_id BIGINT UNSIGNED NULL,
