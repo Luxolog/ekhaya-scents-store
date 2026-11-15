@@ -153,8 +153,13 @@ try {
    if ($default) $db()->prepare('UPDATE customer_addresses SET is_default=0 WHERE customer_id=? AND address_type=?')->execute([$id,$type]);
    if ($addressId>0) {
     $sql='UPDATE customer_addresses SET address_type=?,first_name=?,last_name=?,company=?,phone=?,address_1=?,address_2=?,city=?,province=?,postcode=?,country_code=?,is_default=? WHERE id=? AND customer_id=?';
-    $db()->prepare($sql)->execute([$type,...array_values($values),$country,$default,$addressId,$id]);
-    if ($db()->query('SELECT ROW_COUNT()')->fetchColumn()===false) throw new RuntimeException('Address update failed.');
+    $update=$db()->prepare($sql);
+    $update->execute([$type,...array_values($values),$country,$default,$addressId,$id]);
+    if ($update->rowCount()===0) {
+     $exists=$db()->prepare('SELECT id FROM customer_addresses WHERE id=? AND customer_id=? LIMIT 1');
+     $exists->execute([$addressId,$id]);
+     if (!$exists->fetchColumn()) throw new RuntimeException('Address not found for this account.');
+    }
    } else {
     $sql='INSERT INTO customer_addresses (customer_id,address_type,first_name,last_name,company,phone,address_1,address_2,city,province,postcode,country_code,is_default) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
     $db()->prepare($sql)->execute([$id,$type,...array_values($values),$country,$default]);
