@@ -101,16 +101,18 @@ try {
   $record=['ID'=>$id,'title'=>$p['post_title'],'slug'=>$slug,'sku'=>$sku,'regular'=>$regular,'sale'=>$sale,'status'=>$stockStatus,'stock'=>$stock,'date'=>$p['post_date']];
   $variantPosts->execute([$id]);$sourceVariants=$variantPosts->fetchAll();
   $productMapLookup->execute([(string)$id]);$mapped=$productMapLookup->fetchColumn();
-  if($mapped){$counts['mapped']++;continue;}
-  $productLookup->execute([$slug,$sku]);$existing=$productLookup->fetchColumn();
-  if($existing){$targetId=(int)$existing;$counts['skipped_existing']++;}
-  elseif($dry){$targetId=-$id;$counts['new']++;}
-  else{
-   $productInsert->execute([$sku!==''?$sku:null,$p['post_title'],$slug,$sourceVariants?'variable':'simple',$p['post_content'],$p['post_excerpt'],$regular,$sale,$manage,$stock,$stockStatus,$weight,$virtual?0:1,$p['post_date']]);
-   $targetId=(int)$dst->lastInsertId();$counts['new']++;
+  if($mapped){$targetId=(int)$mapped;$counts['mapped']++;}
+  else {
+   $productLookup->execute([$slug,$sku]);$existing=$productLookup->fetchColumn();
+   if($existing){$targetId=(int)$existing;$counts['skipped_existing']++;}
+   elseif($dry){$targetId=-$id;$counts['new']++;}
+   else{
+    $productInsert->execute([$sku!==''?$sku:null,$p['post_title'],$slug,$sourceVariants?'variable':'simple',$p['post_content'],$p['post_excerpt'],$regular,$sale,$manage,$stock,$stockStatus,$weight,$virtual?0:1,$p['post_date']]);
+    $targetId=(int)$dst->lastInsertId();$counts['new']++;
+   }
   }
   if($commit){
-   $productMapInsert->execute([(string)$id,$targetId,$batchId,checksum($record)]);
+   if(!$mapped)$productMapInsert->execute([(string)$id,$targetId,$batchId,checksum($record)]);
    $q=$src->prepare("SELECT tt.term_id FROM {$rel} tr JOIN {$tax} tt ON tt.term_taxonomy_id=tr.term_taxonomy_id WHERE tr.object_id=? AND tt.taxonomy='product_cat'");
    $q->execute([$id]);
    foreach($q->fetchAll(PDO::FETCH_COLUMN) as $termId){$cid=$catMap[(int)$termId]??null;if($cid && $cid>0){$linkInsert->execute([$targetId,$cid]);$counts['category_links']++;}}
