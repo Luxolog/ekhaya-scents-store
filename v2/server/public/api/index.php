@@ -37,7 +37,7 @@ try {
   catch (PDOException $e) { if ($e->getCode()==='23000') $json(['ok'=>false,'error'=>'account_already_exists'],409); throw $e; }
   $customerId=(int)$db()->lastInsertId(); $token=bin2hex(random_bytes(32));
   $db()->prepare('INSERT INTO email_verification_tokens (customer_id,token_hash,expires_at) VALUES (?,?,?)')->execute([$customerId,hash('sha256',$token),gmdate('Y-m-d H:i:s',time()+86400)]);
-  $url=rtrim($config['app']['base_url'],'/').'/verify-email?token='.urlencode($token);
+  $url=rtrim($config['app']['base_url'],'/').'/verify-email.html?token='.urlencode($token);
   Mailer::send($config,$email,'Verify your Ekhaya Scents account',Mailer::verificationHtml($first,$url));
   $json(['ok'=>true,'message'=>'account_created_verification_sent'],201);
  }
@@ -64,7 +64,7 @@ try {
     $token=bin2hex(random_bytes(32));
     $db()->prepare('UPDATE password_reset_tokens SET used_at=UTC_TIMESTAMP() WHERE customer_id=? AND used_at IS NULL')->execute([(int)$customer['id']]);
     $db()->prepare('INSERT INTO password_reset_tokens (customer_id,token_hash,expires_at) VALUES (?,?,?)')->execute([(int)$customer['id'],hash('sha256',$token),gmdate('Y-m-d H:i:s',time()+3600)]);
-    $url=rtrim($config['app']['base_url'],'/').'/reset-password?token='.urlencode($token);
+    $url=rtrim($config['app']['base_url'],'/').'/reset-password.html?token='.urlencode($token);
     Mailer::send($config,$email,'Reset your Ekhaya Scents password',Mailer::resetHtml((string)$customer['first_name'],$url));
    }
   }
