@@ -23,11 +23,7 @@ async function loadCatalogue(){
  if(!p.ok||!c.ok)throw new Error("Catalogue is temporarily unavailable");
  const pd=await p.json(),cd=await c.json();
  categories=cd.categories||[];
- const categoryMap=new Map(categories.map(x=>[Number(x.id),x]));
- catalogue=(pd.products||[]).map(x=>({...x,categories:[]})); 
- // Category associations are included by the dedicated product detail endpoint; fetch product details in parallel for listing categorisation.
- const details=await Promise.all(catalogue.map(x=>fetch("api/products/"+encodeURIComponent(x.slug)).then(r=>r.ok?r.json():null).catch(()=>null)));
- catalogue=catalogue.map((x,i)=>({...x,categories:details[i]?.product?.categories||[]}));
+ catalogue=(pd.products||[]).map(x=>({...x,categories:x.categories||[]}));
  renderProducts();
 }
 function renderCart(){
