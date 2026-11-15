@@ -17,4 +17,10 @@ return [
         'password' => getenv('EKHAYA_TARGET_DB_PASS') ?: '',
     ],
     'snapshot' => '2026-11-14',
+    'media' => [
+        // Point to the merged, privately extracted WordPress uploads directory.
+        'source_uploads_dir' => getenv('EKHAYA_SOURCE_UPLOADS_DIR') ?: '',
+        // Absolute path to v2/server/public on the staging host.
+        'target_public_dir' => getenv('EKHAYA_TARGET_PUBLIC_DIR') ?: '',
+    ],
 ];
