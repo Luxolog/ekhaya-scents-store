@@ -1,29 +1,33 @@
-# Ekhaya Scents v2 PHP backend foundation
+# Ekhaya Scents v2 PHP backend
 
-PHP 8.2+, PDO MySQL and MariaDB/MySQL. No framework or Composer dependency required for this first phase.
+PHP 8.2+, PDO MySQL. The API is an early staging foundation.
 
-## Structure
-- public/: document root contents; point the staging subdomain here when deploying.
-- public/api/index.php: minimal JSON API.
-- src/: application classes; keep outside public web root.
-- config.example.php: safe configuration template.
-- config.local.php: local/server secrets; never commit.
+## Deployment layout
+Set the subdomain document root to `v2/server/public`. Keep `src`, `config.local.php`, and secrets outside the public directory.
 
 ## Configure
-1. Create the v2 database using the SQL schema at ../database/schema.sql.
-2. Copy config.example.php to config.local.php and configure database values through environment variables or a server-only file.
-3. Set the staging subdomain document root to this public directory (or copy public contents into its document root while keeping src/config outside the public tree and adjust paths).
-4. Enable SSL before testing authentication or checkout.
-5. Test GET /api, GET /api/health and GET /api/products.
+- Apply `../database/schema.sql`, then `../database/auth-additions.sql`.
+- Copy `config.example.php` to `config.local.php` in `v2/server`.
+- Set database credentials and a long random `EKHAYA_RATE_LIMIT_SECRET` through hosting environment variables.
+- Set `EKHAYA_ALLOWED_ORIGINS` to the exact staging origin.
+- Use HTTPS. Session cookies become Secure when HTTPS is detected.
 
-## API routes
-- GET /api — service/version metadata.
-- GET /api/health — database connectivity check.
-- GET /api/products — published catalogue records (maximum 100).
+## Endpoints
+- GET /api
+- GET /api/health
+- GET /api/products
+- GET /api/auth/csrf
+- POST /api/auth/register
+- POST /api/auth/login
+- GET /api/auth/me
+- POST /api/auth/logout
 
-## Safety status
-- No customer login or account creation endpoint is exposed yet.
-- No cart/order/payment endpoint is exposed yet.
-- PayFast checkout is intentionally not implemented until server-side order creation, signature/source verification, amount reconciliation and idempotent ITN handling are ready.
-- API errors return generic messages; detailed errors go to the server error log.
-- Do not expose this staging API publicly until SSL, access protection and database credentials are configured.
+## Account activation
+New registrations are created with `pending` status and cannot log in until an administrator or verified email workflow activates them. This intentionally avoids unverified accounts being treated as active customers. A proper email verification and password reset workflow is a next phase.
+
+## Security notes
+- Passwords use PHP `password_hash` and `password_verify`.
+- Mutating auth requests require a session CSRF token.
+- Login and registration attempts are rate-limited using a server-only HMAC secret.
+- Use HTTPS and keep config outside public web root.
+- This is not yet ready for public customer signups: email verification, account activation administration, recovery flow, and full security testing are still required.
