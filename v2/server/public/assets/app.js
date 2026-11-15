@@ -1,22 +1,46 @@
-const signatureProducts = [
- {id:"umoya",name:"UMOYA",subtitle:"The Scent of Spirit",price:285,audience:"him"},
- {id:"amandla",name:"AMANDLA",subtitle:"The Scent of Strength",price:285,audience:"him"},
- {id:"isibindi",name:"ISIBINDI",subtitle:"The Scent of Courage",price:285,audience:"him"},
- {id:"ulonwabo",name:"ULONWABO",subtitle:"The Scent of Happiness",price:285,audience:"her"},
- {id:"ubulumko",name:"UBULUMKO",subtitle:"The Scent of Wisdom",price:285,audience:"her"},
- {id:"ubunono",name:"UBUNONO",subtitle:"The Scent of Elegance",price:285,audience:"her"}
-];
-const homeProducts = [
- {id:"reed-diffuser",name:"Reed Diffuser",subtitle:"150ml · Home fragrance",price:299},
- {id:"linen-spray",name:"Linen Spray",subtitle:"250ml · Home fragrance",price:149},
- {id:"car-perfume",name:"Car Perfume",subtitle:"Every journey, beautifully scented",price:65}
-];
 const cart = new Map();
-const money = n => new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR"}).format(n);
-function card(p){return `<article class="product-card"><div class="product-visual"><div class="mini-bottle">${p.name.split(" ")[0]}</div></div><div class="product-info"><div><h3>${p.name}</h3><p>${p.subtitle||""}</p><button class="add-button" data-add="${p.id}">Add to bag +</button></div><strong class="product-price">${money(p.price)}</strong></div></article>`}
-function renderProducts(){const filter=document.querySelector(".filter.active")?.dataset.filter||"all";document.getElementById("fragranceGrid").innerHTML=signatureProducts.filter(p=>filter==="all"||p.audience===filter).map(card).join("");document.getElementById("homeGrid").innerHTML=homeProducts.map(card).join("");}
-function renderCart(){const items=[...cart.values()];document.getElementById("cartCount").textContent=items.reduce((s,p)=>s+p.qty,0);document.getElementById("cartSubtotal").textContent=money(items.reduce((s,p)=>s+p.price*p.qty,0));document.getElementById("cartItems").innerHTML=items.length?items.map(p=>`<div class="cart-line"><span>${p.name} × ${p.qty}</span><span>${money(p.price*p.qty)} <button data-remove="${p.id}" aria-label="Remove ${p.name}">×</button></span></div>`).join(""):'<p class="empty-cart">Your bag is waiting for something special.</p>';}
-document.addEventListener("click",e=>{const add=e.target.closest("[data-add]");if(add){const p=[...signatureProducts,...homeProducts].find(x=>x.id===add.dataset.add);if(p){const current=cart.get(p.id)||{...p,qty:0};current.qty++;cart.set(p.id,current);renderCart();openCart();}}const remove=e.target.closest("[data-remove]");if(remove){cart.delete(remove.dataset.remove);renderCart();}});
+const money = n => new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR"}).format(Number(n||0));
+const esc = value => String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let catalogue=[];
+let categories=[];
+function productPrice(p){return p.sale_price!==null && p.sale_price!=="" ? Number(p.sale_price) : Number(p.regular_price||0)}
+function card(p){
+ const image=p.image_path ? '<img loading="lazy" src="'+esc(p.image_path)+'" alt="'+esc(p.name)+'">' : '<div class="mini-bottle">'+esc(p.name)+'</div>';
+ return '<article class="product-card"><a class="product-visual" href="product.html?slug='+encodeURIComponent(p.slug)+'">'+image+'</a><div class="product-info"><div><h3><a href="product.html?slug='+encodeURIComponent(p.slug)+'">'+esc(p.name)+'</a></h3><p>'+esc(p.short_description||"")+'</p><button class="add-button" data-add="'+esc(p.id)+'">Add to bag +</button></div><strong class="product-price">'+money(productPrice(p))+'</strong></div></article>';
+}
+function emptyMessage(){return '<p class="catalogue-empty">New arrivals are being prepared. Please check back shortly.</p>'}
+function renderProducts(){
+ const filter=document.querySelector(".filter.active")?.dataset.filter||"all";
+ const signature=catalogue.filter(p=>p.categories?.some(c=>/origin|fragrance|perfume|him|her/i.test(c.slug+" "+c.name)));
+ const home=catalogue.filter(p=>p.categories?.some(c=>/home|car|diffuser|linen/i.test(c.slug+" "+c.name)));
+ const source=signature.length?signature:catalogue;
+ const shown=filter==="all"?source:source.filter(p=>p.categories?.some(c=>filter==="him"?/him|men/i.test(c.slug+" "+c.name):/her|women/i.test(c.slug+" "+c.name)));
+ document.getElementById("fragranceGrid").innerHTML=shown.length?shown.map(card).join(""):emptyMessage();
+ document.getElementById("homeGrid").innerHTML=home.length?home.map(card).join(""):emptyMessage();
+}
+async function loadCatalogue(){
+ const [p,c]=await Promise.all([fetch("api/products?limit=100",{headers:{Accept:"application/json"}}),fetch("api/categories",{headers:{Accept:"application/json"}})]);
+ if(!p.ok||!c.ok)throw new Error("Catalogue is temporarily unavailable");
+ const pd=await p.json(),cd=await c.json();
+ categories=cd.categories||[];
+ const categoryMap=new Map(categories.map(x=>[Number(x.id),x]));
+ catalogue=(pd.products||[]).map(x=>({...x,categories:[]})); 
+ // Category associations are included by the dedicated product detail endpoint; fetch product details in parallel for listing categorisation.
+ const details=await Promise.all(catalogue.map(x=>fetch("api/products/"+encodeURIComponent(x.slug)).then(r=>r.ok?r.json():null).catch(()=>null)));
+ catalogue=catalogue.map((x,i)=>({...x,categories:details[i]?.product?.categories||[]}));
+ renderProducts();
+}
+function renderCart(){
+ const items=[...cart.values()];
+ document.getElementById("cartCount").textContent=items.reduce((s,p)=>s+p.qty,0);
+ document.getElementById("cartSubtotal").textContent=money(items.reduce((s,p)=>s+p.price*p.qty,0));
+ document.getElementById("cartItems").innerHTML=items.length?items.map(p=>'<div class="cart-line"><span>'+esc(p.name)+' × '+p.qty+'</span><span>'+money(p.price*p.qty)+' <button data-remove="'+esc(p.id)+'" aria-label="Remove '+esc(p.name)+'">×</button></span></div>').join(""):'<p class="empty-cart">Your bag is waiting for something special.</p>';
+}
+document.addEventListener("click",e=>{
+ const add=e.target.closest("[data-add]");
+ if(add){const p=catalogue.find(x=>String(x.id)===add.dataset.add);if(p){const current=cart.get(String(p.id))||{id:String(p.id),name:p.name,price:productPrice(p),qty:0};current.qty++;cart.set(String(p.id),current);renderCart();openCart();}}
+ const remove=e.target.closest("[data-remove]");if(remove){cart.delete(remove.dataset.remove);renderCart();}
+});
 document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderProducts();}));
 const drawer=document.getElementById("cartDrawer"),scrim=document.getElementById("scrim");
 function openCart(){drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");scrim.classList.add("show");}
@@ -25,4 +49,5 @@ document.getElementById("cartTrigger").addEventListener("click",openCart);docume
 document.getElementById("menuToggle").addEventListener("click",()=>{const nav=document.getElementById("mainNav");const open=nav.classList.toggle("open");document.getElementById("menuToggle").setAttribute("aria-expanded",String(open));});
 document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click",()=>document.getElementById("mainNav").classList.remove("open")));
 document.getElementById("year").textContent=new Date().getFullYear();
-renderProducts();renderCart();
+renderCart();
+loadCatalogue().catch(()=>{document.getElementById("fragranceGrid").innerHTML=emptyMessage();document.getElementById("homeGrid").innerHTML=emptyMessage();});
