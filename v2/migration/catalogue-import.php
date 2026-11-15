@@ -74,7 +74,7 @@ try {
  }
  $productQuery->execute([$checkpoint]); $products=$productQuery->fetchAll();
  $productInsert=$dst->prepare("INSERT INTO products(sku,name,slug,product_type,description,short_description,status,regular_price,sale_price,manage_stock,stock_quantity,stock_status,weight_kg,requires_shipping,source_created_at) VALUES(?,?,?,?,?,?,'published',?,?,?,?,?,?,?,?)");
- $productLookup=$dst->prepare('SELECT id FROM products WHERE slug=? OR (sku IS NOT NULL AND sku<>'' AND sku=?) LIMIT 1');
+ $productLookup=$dst->prepare("SELECT id,slug,sku FROM products WHERE slug=? OR (sku IS NOT NULL AND sku<>'' AND sku=?)");
  $productMapLookup=$dst->prepare("SELECT target_id FROM legacy_id_map WHERE source_system='woocommerce' AND source_entity='product' AND source_id=? AND target_entity='product' LIMIT 1");
  $productMapInsert=$dst->prepare("INSERT INTO legacy_id_map(source_system,source_entity,source_id,target_entity,target_id,batch_id,source_checksum) VALUES('woocommerce','product',?,'product',?,?,?) ON DUPLICATE KEY UPDATE target_id=VALUES(target_id),batch_id=VALUES(batch_id),source_checksum=VALUES(source_checksum)");
  $linkInsert=$dst->prepare('INSERT IGNORE INTO product_categories(product_id,category_id) VALUES(?,?)');
@@ -103,7 +103,10 @@ try {
   $productMapLookup->execute([(string)$id]);$mapped=$productMapLookup->fetchColumn();
   if($mapped){$targetId=(int)$mapped;$counts['mapped']++;}
   else {
-   $productLookup->execute([$slug,$sku]);$existing=$productLookup->fetchColumn();
+   $productLookup->execute([$slug,$sku]);$matches=$productLookup->fetchAll();
+   $matchIds=array_values(array_unique(array_map(static fn($row)=>(int)$row['id'],$matches)));
+   if(count($matchIds)>1) throw new RuntimeException('Ambiguous existing product match for source product ID '.$id.' (slug/SKU collision). Resolve the target catalogue record manually before continuing.');
+   $existing=$matchIds[0]??null;
    if($existing){$targetId=(int)$existing;$counts['skipped_existing']++;}
    elseif($dry){$targetId=-$id;$counts['new']++;}
    else{
