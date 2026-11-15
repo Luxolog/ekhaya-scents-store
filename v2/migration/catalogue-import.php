@@ -137,9 +137,13 @@ try {
      $vstock=is_numeric($vm['_stock']??null)?(float)$vm['_stock']:$stock;
      $vstatus=($vm['_stock_status']??$stockStatus);
      if($vstatus==='instock')$vstatus='in_stock';elseif($vstatus==='outofstock')$vstatus='out_of_stock';elseif($vstatus==='onbackorder')$vstatus='backorder';
-     $variantInsert->execute([$targetId,$vsku!==''?$vsku:null,json_encode($options,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE),$vregular,$vsale,$vstock,$vstatus]);
-     $variantId=(int)$dst->lastInsertId();
-     $variantMapInsert->execute([(string)$vid,$variantId,$batchId,checksum(['id'=>$vid,'sku'=>$vsku,'options'=>$options,'regular'=>$vregular,'sale'=>$vsale])]);
+     $dst->beginTransaction();
+     try {
+      $variantInsert->execute([$targetId,$vsku!==''?$vsku:null,json_encode($options,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE),$vregular,$vsale,$vstock,$vstatus]);
+      $variantId=(int)$dst->lastInsertId();
+      $variantMapInsert->execute([(string)$vid,$variantId,$batchId,checksum(['id'=>$vid,'sku'=>$vsku,'options'=>$options,'regular'=>$vregular,'sale'=>$vsale])]);
+      $dst->commit();
+     } catch(Throwable $variantError) { if($dst->inTransaction())$dst->rollBack(); throw $variantError; }
     }
    }
   }
