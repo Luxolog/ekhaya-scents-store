@@ -44,7 +44,9 @@ jobs:
             'Checkout is not implemented; do not accept payments or real orders on staging.' \
             'Preserve the existing php.ini separately if required by the host.' > dist/ekhaya-staging/DEPLOYMENT-NOTES.txt
           cd dist
-          cd ekhaya-staging\n          zip -qr ../ekhaya-scents-staging-bundle.zip public server database DEPLOYMENT-NOTES.txt\n          cd ..
+          cd ekhaya-staging
+          zip -qr ../ekhaya-scents-staging-bundle.zip public server database DEPLOYMENT-NOTES.txt
+          cd ..
           unzip -t ekhaya-scents-staging-bundle.zip
           unzip -l ekhaya-scents-staging-bundle.zip
 
