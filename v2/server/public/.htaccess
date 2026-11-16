@@ -1,4 +1,5 @@
 Options -Indexes
+SetEnv EKHAYA_PRIVATE_ROOT /home/robogirl/ekhaya-staging/ekhaya-staging/server
 DirectoryIndex index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
