@@ -1,0 +1,40 @@
+name: Build Ekhaya Scents staging package
+
+on:
+  push:
+    branches:
+      - ekhaya-platform-v2
+    paths:
+      - ".github/workflows/build-staging-package.yml"
+      - "v2/server/public/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out development branch
+        uses: actions/checkout@v4
+        with:
+          ref: ekhaya-platform-v2
+
+      - name: Build public web-root ZIP
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cd v2/server/public
+          zip -r ../../../../dist/ekhaya-scents-staging-public.zip . -x 'config.local.php' '*.env' '.DS_Store'
+          cd ../../../../
+          unzip -l dist/ekhaya-scents-staging-public.zip
+          test -f dist/ekhaya-scents-staging-public.zip
+
+      - name: Upload staging package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ekhaya-scents-staging-public
+          path: dist/ekhaya-scents-staging-public.zip
+          if-no-files-found: error
+          retention-days: 7
