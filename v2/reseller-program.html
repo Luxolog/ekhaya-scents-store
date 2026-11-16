@@ -11,6 +11,7 @@
 @media(max-width:780px){.layout{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.hero-mark{width:100%;text-align:left}.metrics{grid-template-columns:1fr 1fr}.metrics .metric:last-child{grid-column:1/-1}.wrap{padding:24px 14px 40px}.card{padding:16px}.topbar{padding:13px 15px}.linkbox{flex-direction:column}.linkbox .btn{width:100%}}
 .reseller-qty{width:88px;max-width:100%;padding:9px;border:1px solid var(--line);border-radius:0;background:#fff;color:var(--ink)}
 @media(max-width:520px){.reseller-qty{width:70px}}
+.reseller-qty{width:88px;max-width:100%;padding:9px;border:1px solid var(--line);border-radius:0;background:#fff;color:var(--ink)}.cart-line{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}.cart-line input{width:66px;padding:7px;border:1px solid var(--line)}.cart-line button{padding:6px 8px}.cart-line:last-child{border-bottom:0}@media(max-width:520px){.reseller-qty{width:70px}.cart-line{grid-template-columns:1fr auto}.cart-line .remove-line{grid-column:2}}
 </style>
 </head>
 <body>
@@ -28,7 +29,7 @@
 <tr><td>Linen spray</td><td>—</td><td>—</td><td><span class="status reversed">No stock</span></td></tr>
 </tbody></table></div>
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px"><strong>Choose your quantities</strong><button class="btn gold" id="addResellerSelection" type="button">Add selection to cart +</button></div>
-<div id="resellerCart" class="divider" aria-live="polite" style="display:none"><strong>Your cart</strong><div id="resellerCartItems" class="rates" style="margin-top:8px"></div><div style="display:flex;justify-content:space-between;margin-top:12px"><strong>Cart total</strong><strong id="resellerCartTotal">R0</strong></div><p class="sub">Demo cart only — no checkout or payment is processed on this prototype.</p></div>
+<div id="resellerCart" class="divider" aria-live="polite" style="display:none"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><strong>Your cart</strong><button class="btn" id="clearResellerCart" type="button">Clear cart</button></div><div id="resellerCartItems" class="rates" style="margin-top:8px"></div><div style="display:flex;justify-content:space-between;margin-top:12px"><strong>Cart total</strong><strong id="resellerCartTotal">R0</strong></div><p class="sub">Your cart is saved in this browser. This prototype does not yet submit orders or process payments.</p></div>
 <p class="sub" style="margin-top:12px">Reed diffusers and linen sprays are currently out of stock.</p>
 </section>
 <div class="layout">
@@ -72,20 +73,44 @@ render();
 </script>
 <script>
 (function(){
-const cart={};
+const storageKey='ekhaya-reseller-cart-v1';
+const catalogue=[
+ {name:'Origin perfume 30ml',price:99},
+ {name:'Origin perfume 50ml',price:135},
+ {name:'Car perfume 7ml',price:25}
+];
+let cart={};
+try{cart=JSON.parse(localStorage.getItem(storageKey)||'{}')||{}}catch(e){cart={}}
 const money=n=>'R'+Number(n).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
-document.getElementById('addResellerSelection').addEventListener('click',function(){
- let added=0;
+function persist(){try{localStorage.setItem(storageKey,JSON.stringify(cart))}catch(e){} render()}
+function render(){
+ const panel=document.getElementById('resellerCart'),items=document.getElementById('resellerCartItems');
+ items.innerHTML='';let total=0,hasItems=false;
+ catalogue.forEach((product,index)=>{
+  const qty=Math.max(0,Math.floor(Number(cart[index])||0));if(!qty)return;
+  hasItems=true;const line=qty*product.price;total+=line;
+  const row=document.createElement('div');row.className='cart-line';
+  const label=document.createElement('span');label.textContent=product.name+' · '+money(product.price)+' each';
+  const quantity=document.createElement('input');quantity.type='number';quantity.min='0';quantity.step='1';quantity.value=qty;quantity.setAttribute('aria-label','Quantity of '+product.name);
+  quantity.addEventListener('change',()=>{const next=Math.max(0,Math.floor(Number(quantity.value)||0));if(next)cart[index]=next;else delete cart[index];persist()});
+  const remove=document.createElement('button');remove.type='button';remove.className='btn remove-line';remove.textContent='Remove';remove.addEventListener('click',()=>{delete cart[index];persist()});
+  const amount=document.createElement('strong');amount.textContent=money(line);
+  row.append(label,quantity,amount,remove);items.appendChild(row);
+ });
+ panel.style.display=hasItems?'block':'none';
+ document.getElementById('resellerCartTotal').textContent=money(total);
+}
+document.getElementById('addResellerSelection').addEventListener('click',()=>{
+ let added=false;
  document.querySelectorAll('.reseller-qty').forEach(input=>{
   const qty=Math.max(0,Math.floor(Number(input.value)||0));
-  if(qty){const name=input.dataset.name,price=Number(input.dataset.price);cart[name]=(cart[name]||{price,qty:0});cart[name].qty+=qty;input.value=0;added+=qty;}
+  if(qty){const index=catalogue.findIndex(p=>p.name===input.dataset.name);if(index>=0){cart[index]=(Number(cart[index])||0)+qty;added=true;}input.value='0'}
  });
- if(!added){alert('Please enter a quantity for at least one in-stock product.');return;}
- const panel=document.getElementById('resellerCart'),items=document.getElementById('resellerCartItems');
- panel.style.display='block';items.innerHTML='';let total=0;
- Object.entries(cart).forEach(([name,item])=>{const line=item.price*item.qty;total+=line;const row=document.createElement('div');row.className='rate';const label=document.createElement('span');label.textContent=item.qty+' × '+name;const value=document.createElement('strong');value.textContent=money(line);row.append(label,value);items.appendChild(row)});
- document.getElementById('resellerCartTotal').textContent=money(total);
+ if(!added){alert('Please enter a quantity for at least one in-stock product.');return}
+ persist();
 });
+document.getElementById('clearResellerCart').addEventListener('click',()=>{cart={};persist()});
+render();
 })();
 </script>
 </body>
