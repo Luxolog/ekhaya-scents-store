@@ -26,8 +26,8 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           cd v2/server/public
-          zip -r ../../../../dist/ekhaya-scents-staging-public.zip . -x 'config.local.php' '*.env' '.DS_Store'
-          cd ../../../../
+          zip -r ../../../dist/ekhaya-scents-staging-public.zip . -x 'config.local.php' '*.env' '.DS_Store'
+          cd ../../../
           unzip -l dist/ekhaya-scents-staging-public.zip
           test -f dist/ekhaya-scents-staging-public.zip
 
