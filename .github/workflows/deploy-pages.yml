@@ -2,7 +2,7 @@ name: Deploy Ekhaya Scents to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["ekhaya-platform-v2"]
   workflow_dispatch:
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: v2
 
   deploy:
     environment:
