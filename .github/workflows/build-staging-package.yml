@@ -6,7 +6,9 @@ on:
       - ekhaya-platform-v2
     paths:
       - ".github/workflows/build-staging-package.yml"
-      - "v2/server/public/**"
+      - "v2/server/**"
+      - "v2/database/schema.sql"
+      - "v2/database/auth-additions.sql"
   workflow_dispatch:
 
 permissions:
@@ -21,20 +23,40 @@ jobs:
         with:
           ref: ekhaya-platform-v2
 
-      - name: Build public web-root ZIP
+      - name: Assemble private staging layout
         run: |
           set -euo pipefail
-          mkdir -p dist
-          cd v2/server/public
-          zip -r ../../../dist/ekhaya-scents-staging-public.zip . -x 'config.local.php' '*.env' '.DS_Store'
-          cd ../../../
-          unzip -l dist/ekhaya-scents-staging-public.zip
-          test -f dist/ekhaya-scents-staging-public.zip
+          mkdir -p dist/ekhaya-staging/server/public dist/ekhaya-staging/server/src dist/ekhaya-staging/database
+          cp -a v2/server/public/. dist/ekhaya-staging/server/public/
+          cp -a v2/server/src/. dist/ekhaya-staging/server/src/
+          cp v2/server/config.example.php dist/ekhaya-staging/server/config.example.php
+          cp v2/database/schema.sql v2/database/auth-additions.sql dist/ekhaya-staging/database/
+          cat > dist/ekhaya-staging/DEPLOYMENT-NOTES.txt <<'NOTES'
+Ekhaya Scents staging bundle
+============================
+Extract this folder into a private directory under the hosting account home directory, NOT inside public_html.
+Recommended layout:
+  /home/ACCOUNT/ekhaya-staging/server/public  <- set the staging domain document root here
+  /home/ACCOUNT/ekhaya-staging/server/src
+  /home/ACCOUNT/ekhaya-staging/server/config.example.php
+  /home/ACCOUNT/ekhaya-staging/database
 
-      - name: Upload staging package
+Copy server/config.example.php to server/config.local.php and fill in staging-only database credentials, app base_url https://dev.ekhayascents.co.za, allowed_origins [https://dev.ekhayascents.co.za], environment staging, timezone Africa/Johannesburg and a long random rate_limit_secret. Never place config.local.php inside public.
+Apply database/schema.sql then database/auth-additions.sql to a new empty staging database only.
+Do not import production customer/order data. Do not apply marketing-additions.sql.
+The public web root is server/public. Keep the source and database folders outside the web root.
+Checkout is not implemented; do not accept payments or real orders on staging.
+Preserve the existing php.ini separately if required by the host.
+NOTES
+          cd dist
+          zip -qr ekhaya-scents-staging-bundle.zip ekhaya-staging
+          unzip -t ekhaya-scents-staging-bundle.zip
+          unzip -l ekhaya-scents-staging-bundle.zip
+
+      - name: Upload staging bundle
         uses: actions/upload-artifact@v4
         with:
-          name: ekhaya-scents-staging-public
-          path: dist/ekhaya-scents-staging-public.zip
+          name: ekhaya-scents-staging-bundle
+          path: dist/ekhaya-scents-staging-bundle.zip
           if-no-files-found: error
           retention-days: 7
