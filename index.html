@@ -200,6 +200,7 @@
     <form id="checkoutForm">
       <label>Full name<input id="checkoutName" name="name" required autocomplete="name"></label>
       <label>Email<input id="checkoutEmail" name="email" type="email" required autocomplete="email"></label>
+      <label style="display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;margin:12px 0"><input id="checkoutPrivacyAck" name="privacyAcknowledgement" type="checkbox" required style="width:18px;flex:0 0 18px;margin-top:3px"><span>I have read the <a href="privacy-policy.html" target="_blank" rel="noopener">Ekhaya Scents Privacy Notice</a> and understand how my order and contact details will be used to process this purchase. *</span></label>
       <button class="btn full" type="submit">Continue to Payfast</button>
       <p id="checkoutStatus" class="checkout-status" role="status"></p>
     </form>
