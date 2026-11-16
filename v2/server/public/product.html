@@ -23,9 +23,15 @@ const optionLabel=o=>{
   document.getElementById("stock").textContent=p.stock_status==="in_stock"?"AVAILABLE":"Availability: "+String(p.stock_status||"").replaceAll("_"," ").toUpperCase();
   const image=p.images?.[0];if(image?.source_path)document.getElementById("media").innerHTML='<img src="'+esc(image.source_path)+'" alt="'+esc(image.alt_text||p.name)+'">';
   let variants=(p.variants||[]).map(v=>({id:String(v.id),label:optionLabel(v.option_values),price:Number(v.sale_price!==null&&v.sale_price!==""?v.sale_price:v.regular_price||0),stock:v.stock_status||p.stock_status}));
-  const productContext=p.name+" "+(p.categories||[]).map(c=>c.name+" "+c.slug).join(" ");\n  const isOrigin=/origin|ubulumko|ubunono|ulonwabo|umoya|amandla|isibindi|isithunzi|ubukhosi/i.test(productContext);\n  const isBottle=/bottle|bottles|atomiser|atomizer/i.test(productContext);
-  if(!variants.length&&isOrigin){
-   variants=["30ml","50ml","100ml"].map(size=>({id:"size-"+size,label:size,price:productPrice(p),stock:p.stock_status}));
+  const productContext=p.name+" "+(p.categories||[]).map(c=>c.name+" "+c.slug).join(" ");
+  const isOrigin=/origin|ubulumko|ubunono|ulonwabo|umoya|amandla|isibindi|isithunzi|ubukhosi/i.test(productContext);
+  const isBottle=/bottle|bottles|atomiser|atomizer/i.test(productContext);
+  const allowedSizes=["30ml","50ml","100ml"];
+  if(isOrigin||isBottle){
+   variants=variants.filter(v=>allowedSizes.some(size=>v.label.toLowerCase().includes(size)));
+   if(!variants.length){
+    variants=allowedSizes.map(size=>({id:"size-"+size,label:size,price:0,stock:p.stock_status}));
+   }
   }
   const picker=document.getElementById("variant-picker");
   if(!variants.length){
@@ -33,7 +39,7 @@ const optionLabel=o=>{
    picker.innerHTML='<p class="variant-empty">'+label+'</p><div class="single-buy"><strong>'+money(productPrice(p))+' each</strong><label>Quantity <input id="single-qty" type="number" min="0" max="99" value="0" inputmode="numeric"></label><button class="button button-gold" id="single-add" '+(p.stock_status==="in_stock"?"":"disabled")+'>Add to bag</button></div>';
    document.getElementById("single-add").addEventListener("click",()=>{const qty=Math.max(0,Math.min(99,Math.floor(Number(document.getElementById("single-qty").value)||0)));if(!qty)return;addToBag({id:String(p.id),name:p.name,price:productPrice(p),qty});});
   }else{
-   picker.innerHTML='<div class="variant-table-wrap"><table class="variant-table"><thead><tr><th>Size / style</th><th>Price each</th><th>Quantity</th></tr></thead><tbody>'+variants.map((v,i)=>'<tr><td>'+esc(v.label)+'</td><td>'+money(v.price)+'</td><td><input class="variant-qty" type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Quantity for '+esc(v.label)+'" data-index="'+i+'"></td></tr>').join("")+'</tbody></table></div><button class="button button-gold" id="add-selected">Add selected to bag</button>';
+   picker.innerHTML='<div class="variant-table-wrap"><table class="variant-table"><thead><tr><th>Size / style</th><th>Price each</th><th>Quantity</th></tr></thead><tbody>'+variants.map((v,i)=>'<tr><td>'+esc(v.label)+'</td><td>'+(v.price>0?money(v.price):'Price to be confirmed')+'</td><td><input class="variant-qty" type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Quantity for '+esc(v.label)+'" data-index="'+i+'"></td></tr>').join("")+'</tbody></table></div><button class="button button-gold" id="add-selected">Add selected to bag</button>';
    document.getElementById("add-selected").addEventListener("click",()=>{
     const inputs=[...picker.querySelectorAll(".variant-qty")];let added=0;
     inputs.forEach(input=>{const qty=Math.max(0,Math.min(99,Math.floor(Number(input.value)||0)));if(!qty)return;const v=variants[Number(input.dataset.index)];if(v.stock!=="in_stock")return;addToBag({id:String(p.id)+"-variant-"+v.id,name:p.name+" — "+v.label,price:v.price,qty});added+=qty;});
