@@ -1,12 +1,15 @@
 <?php
 declare(strict_types=1);
-require_once dirname(__DIR__, 2) . '/src/Database.php';
-require_once dirname(__DIR__, 2) . '/src/Response.php';
-require_once dirname(__DIR__, 2) . '/src/Auth.php';
-require_once dirname(__DIR__, 2) . '/src/Mailer.php';
-$configPath = dirname(__DIR__, 2) . '/config.local.php';
+$privateRoot = rtrim((string)($_SERVER['EKHAYA_PRIVATE_ROOT'] ?? getenv('EKHAYA_PRIVATE_ROOT') ?: dirname(__DIR__, 2)), '/');
+require_once $privateRoot . '/src/Database.php';
+require_once $privateRoot . '/src/Response.php';
+require_once $privateRoot . '/src/Auth.php';
+require_once $privateRoot . '/src/Mailer.php';
+$configPath = $privateRoot . '/config.local.php';
 if (!is_file($configPath)) Response::json(['ok'=>false,'error'=>'application_not_configured'],503);
 $config=require $configPath;
+$rateSecret=(string)($config['security']['rate_limit_secret'] ?? '');
+if ($rateSecret !== '') putenv('EKHAYA_RATE_LIMIT_SECRET='.$rateSecret);
 date_default_timezone_set($config['app']['timezone'] ?? 'Africa/Johannesburg');
 $origin=$_SERVER['HTTP_ORIGIN'] ?? '';
 $allowed=$config['app']['allowed_origins'] ?? [];
