@@ -143,6 +143,9 @@ checkoutForm.addEventListener("submit",async e=>{
   const payload={
     name:$("checkoutName").value.trim(),
     email:$("checkoutEmail").value.trim(),
+    privacyNoticeAcknowledged: $("checkoutPrivacyAck").checked,
+    privacyNoticeVersion: "2026-11-16",
+    privacyNoticeAcknowledgedAt: new Date().toISOString(),
     amount:(pricing.subtotal+shipping).toFixed(2),
     description:"Ekhaya Scents order",
     shipping:shipping,
