@@ -61,7 +61,9 @@ document.addEventListener("click",e=>{
  if(add){const p=catalogue.find(x=>String(x.id)===add.dataset.add);if(p){if(p.stock_status!=="in_stock")return;const current=cart.get(String(p.id))||{id:String(p.id),name:p.name,price:productPrice(p),qty:0};current.qty=Math.min(99,current.qty+1);cart.set(String(p.id),current);saveCart();renderCart();openCart();}}
  const remove=e.target.closest("[data-remove]");if(remove){cart.delete(remove.dataset.remove);saveCart();renderCart();}
 });
-document.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b){activeCategory=b.dataset.category;renderProducts();}const gender=e.target.closest("[data-filter]");if(gender){document.querySelectorAll("[data-filter]").forEach(x=>x.classList.remove("active"));gender.classList.add("active");renderProducts();}});\nconst searchInput=document.getElementById("catalogueSearch");if(searchInput)searchInput.addEventListener("input",()=>{searchTerm=searchInput.value.trim();renderProducts();});\nconst sortInput=document.getElementById("catalogueSort");if(sortInput)sortInput.addEventListener("change",()=>{sortMode=sortInput.value;renderProducts();});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(b){activeCategory=b.dataset.category;renderProducts();}const gender=e.target.closest("[data-filter]");if(gender){document.querySelectorAll("[data-filter]").forEach(x=>x.classList.remove("active"));gender.classList.add("active");renderProducts();}});
+const searchInput=document.getElementById("catalogueSearch");if(searchInput)searchInput.addEventListener("input",()=>{searchTerm=searchInput.value.trim();renderProducts();});
+const sortInput=document.getElementById("catalogueSort");if(sortInput)sortInput.addEventListener("change",()=>{sortMode=sortInput.value;renderProducts();});
 const drawer=document.getElementById("cartDrawer"),scrim=document.getElementById("scrim");
 function openCart(){drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");scrim.classList.add("show");}
 function closeCart(){drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");scrim.classList.remove("show");}
