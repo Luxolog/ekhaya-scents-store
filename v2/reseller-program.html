@@ -9,6 +9,8 @@
 :root{--ink:#171613;--muted:#6d6a62;--paper:#f6f4ef;--card:#fffefa;--line:#e5e0d6;--gold:#b38b42;--gold-dark:#846323;--green:#28714e;--red:#9b3939;--shadow:0 14px 40px rgba(24,22,17,.06)}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit}button,input{font:inherit}button{cursor:pointer}.topbar{background:#171613;color:#fff;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{font-size:13px;letter-spacing:.17em;text-transform:uppercase;font-weight:800}.brand span{color:#d3b36f}.topnote{font-size:11px;color:#e4d7b7;border:1px solid #62553a;padding:5px 9px;border-radius:99px}.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 56px}.hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:24px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold-dark);font-weight:800}.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.06;letter-spacing:-.045em;margin:9px 0 12px;max-width:650px}.hero p{color:var(--muted);max-width:660px;margin:0}.hero-mark{min-width:150px;border:1px solid #d9c8a4;background:#f0e8d7;padding:18px;border-radius:18px;text-align:center}.hero-mark strong{display:block;font-size:28px;letter-spacing:-.04em}.hero-mark small{color:var(--muted)}.notice{background:#fff8e8;border:1px solid #e9d6a7;color:#665124;border-radius:12px;padding:11px 14px;font-size:12px;margin:20px 0 24px}.layout{display:grid;grid-template-columns:1.55fr .95fr;gap:18px}.stack{display:grid;gap:18px;align-content:start}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}.cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:17px}.card h2{font-size:17px;letter-spacing:-.02em;margin:0}.sub{font-size:12px;color:var(--muted);margin:5px 0 0}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 9px;font-size:11px;font-weight:750;background:#f1eadb;color:#735720;white-space:nowrap}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#f8f6f0;border:1px solid var(--line);padding:14px;border-radius:13px;min-width:0}.metric label{display:block;color:var(--muted);font-size:11px;margin-bottom:8px}.metric strong{font-size:24px;letter-spacing:-.04em;display:block;overflow-wrap:anywhere}.metric small{color:var(--muted);font-size:10px}.linkbox{display:flex;gap:8px;margin-top:12px}.linkbox input{min-width:0;flex:1;border:1px solid var(--line);background:#fbfaf7;border-radius:10px;padding:11px;font-size:12px;color:#454138}.btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:10px;padding:10px 13px;font-weight:750;font-size:12px}.btn:hover{border-color:var(--gold)}.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.gold{background:var(--gold);border-color:var(--gold);color:#171613}.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.code{font-size:25px;font-weight:850;letter-spacing:.08em;margin-top:6px}.divider{height:1px;background:var(--line);margin:17px 0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th{text-align:left;color:var(--muted);font-weight:650;font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:10px 8px;border-bottom:1px solid var(--line)}td{padding:12px 8px;border-bottom:1px solid #eeeae2;white-space:nowrap}tbody tr:last-child td{border-bottom:0}.money{font-weight:800}.status{font-size:10px;border-radius:99px;padding:4px 7px;background:#f1eadb;color:#735720}.status.approved{background:#e4f2e9;color:var(--green)}.status.reversed{background:#f8e8e8;color:var(--red)}.empty{color:var(--muted);font-size:12px;padding:16px 0}.steps{display:grid;gap:12px}.step{display:flex;gap:10px;align-items:flex-start}.num{width:27px;height:27px;flex:none;display:grid;place-items:center;border-radius:9px;background:#f0e8d7;color:var(--gold-dark);font-weight:850;font-size:12px}.step strong{font-size:13px;display:block}.step p{font-size:12px;color:var(--muted);margin:3px 0 0}.rates{display:grid;gap:0}.rate{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.rate:last-child{border:0}.rate span{color:var(--muted)}.footer{font-size:11px;color:var(--muted);text-align:center;margin-top:25px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#171613;color:#fff;border-radius:10px;padding:11px 16px;font-size:12px;box-shadow:var(--shadow);display:none;z-index:5}.toast.show{display:block}.admin-controls{background:#f8f6f0;border:1px dashed #cbb98d;border-radius:12px;padding:13px}.admin-controls strong{font-size:12px}.admin-controls p{font-size:11px;color:var(--muted);margin:4px 0 10px}
 @media(max-width:780px){.layout{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.hero-mark{width:100%;text-align:left}.metrics{grid-template-columns:1fr 1fr}.metrics .metric:last-child{grid-column:1/-1}.wrap{padding:24px 14px 40px}.card{padding:16px}.topbar{padding:13px 15px}.linkbox{flex-direction:column}.linkbox .btn{width:100%}}
+.reseller-qty{width:88px;max-width:100%;padding:9px;border:1px solid var(--line);border-radius:0;background:#fff;color:var(--ink)}
+@media(max-width:520px){.reseller-qty{width:70px}}
 </style>
 </head>
 <body>
@@ -17,15 +19,17 @@
 <section class="hero"><div><div class="eyebrow">The Scent of Origin · Partner with us</div><h1>Sell more. We ship.<br>Earn together.</h1><p>A simple reseller programme for Ekhaya Scents. Share your link, we fulfil customer orders, and you earn fixed commissions. Refer a new reseller and earn a once-off reward when they qualify.</p></div><div class="hero-mark"><strong>R50</strong><small>proposed reseller referral reward</small></div></section>
 <div class="notice"><strong>DEMO MODE:</strong> This is a front-end prototype. The sample figures and actions are stored only in this browser for demonstration. It does not create real reseller accounts, track real orders, collect payment details or pay commissions.</div>
 <section class="card" style="margin:22px 0">
-<div class="cardhead"><div><h2>Stock-buying reseller prices</h2><p class="sub">Buy at these reseller prices and set your own selling price.</p></div><span class="pill">Reseller price list</span></div>
-<div class="tablewrap"><table><thead><tr><th>Product</th><th>Size</th><th>Reseller price</th><th>Availability</th></tr></thead><tbody>
-<tr><td>Origin perfume</td><td>30ml</td><td class="money">R99</td><td><span class="status approved">Available</span></td></tr>
-<tr><td>Origin perfume</td><td>50ml</td><td class="money">R135</td><td><span class="status approved">Available</span></td></tr>
-<tr><td>Car perfume</td><td>7ml</td><td class="money">R25</td><td><span class="status approved">Available</span></td></tr>
-<tr><td>Reed diffuser</td><td>—</td><td>—</td><td><span class="status reversed">Out of stock</span></td></tr>
-<tr><td>Linen spray</td><td>—</td><td>—</td><td><span class="status reversed">Out of stock</span></td></tr>
+<div class="cardhead"><div><h2>Stock-buying reseller prices</h2><p class="sub">Choose quantities for the products you want to purchase.</p></div><span class="pill">Reseller price list</span></div>
+<div class="tablewrap"><table><thead><tr><th>Product</th><th>Size</th><th>Price each</th><th>Quantity</th></tr></thead><tbody>
+<tr><td>Origin perfume</td><td>30ml</td><td class="money">R99</td><td><input class="reseller-qty" type="number" min="0" step="1" value="0" data-name="Origin perfume 30ml" data-price="99" aria-label="Quantity of Origin perfume 30ml"></td></tr>
+<tr><td>Origin perfume</td><td>50ml</td><td class="money">R135</td><td><input class="reseller-qty" type="number" min="0" step="1" value="0" data-name="Origin perfume 50ml" data-price="135" aria-label="Quantity of Origin perfume 50ml"></td></tr>
+<tr><td>Car perfume</td><td>7ml</td><td class="money">R25</td><td><input class="reseller-qty" type="number" min="0" step="1" value="0" data-name="Car perfume 7ml" data-price="25" aria-label="Quantity of Car perfume 7ml"></td></tr>
+<tr><td>Reed diffuser</td><td>—</td><td>—</td><td><span class="status reversed">No stock</span></td></tr>
+<tr><td>Linen spray</td><td>—</td><td>—</td><td><span class="status reversed">No stock</span></td></tr>
 </tbody></table></div>
-<p class="sub" style="margin-top:12px">Reed diffusers and linen sprays are currently unavailable. Prices are per unit and stated in South African rand.</p>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px"><strong>Choose your quantities</strong><button class="btn gold" id="addResellerSelection" type="button">Add selection to cart +</button></div>
+<div id="resellerCart" class="divider" aria-live="polite" style="display:none"><strong>Your cart</strong><div id="resellerCartItems" class="rates" style="margin-top:8px"></div><div style="display:flex;justify-content:space-between;margin-top:12px"><strong>Cart total</strong><strong id="resellerCartTotal">R0</strong></div><p class="sub">Demo cart only — no checkout or payment is processed on this prototype.</p></div>
+<p class="sub" style="margin-top:12px">Reed diffusers and linen sprays are currently out of stock.</p>
 </section>
 <div class="layout">
 <div class="stack">
@@ -64,6 +68,24 @@ document.getElementById('simulateSale').addEventListener('click',()=>{state.sale
 document.getElementById('simulateReferral').addEventListener('click',()=>{state.referrals+=50;state.balance+=50;state.rows.unshift({activity:'Referral reward',details:'Referred reseller made qualifying sale · demo',amount:50,status:'Pending'});save();toast('Demo referral qualified — R50 pending')});
 document.getElementById('resetDemo').addEventListener('click',()=>{state=JSON.parse(JSON.stringify(initial));save();toast('Demo data reset')});
 render();
+})();
+</script>
+<script>
+(function(){
+const cart={};
+const money=n=>'R'+Number(n).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+document.getElementById('addResellerSelection').addEventListener('click',function(){
+ let added=0;
+ document.querySelectorAll('.reseller-qty').forEach(input=>{
+  const qty=Math.max(0,Math.floor(Number(input.value)||0));
+  if(qty){const name=input.dataset.name,price=Number(input.dataset.price);cart[name]=(cart[name]||{price,qty:0});cart[name].qty+=qty;input.value=0;added+=qty;}
+ });
+ if(!added){alert('Please enter a quantity for at least one in-stock product.');return;}
+ const panel=document.getElementById('resellerCart'),items=document.getElementById('resellerCartItems');
+ panel.style.display='block';items.innerHTML='';let total=0;
+ Object.entries(cart).forEach(([name,item])=>{const line=item.price*item.qty;total+=line;const row=document.createElement('div');row.className='rate';const label=document.createElement('span');label.textContent=item.qty+' × '+name;const value=document.createElement('strong');value.textContent=money(line);row.append(label,value);items.appendChild(row)});
+ document.getElementById('resellerCartTotal').textContent=money(total);
+});
 })();
 </script>
 </body>
