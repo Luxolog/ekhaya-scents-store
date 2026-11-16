@@ -23,21 +23,22 @@ jobs:
         with:
           ref: ekhaya-platform-v2
 
-      - name: Assemble private staging layout
+      - name: Assemble clean staging upload
         run: |
           set -euo pipefail
-          mkdir -p dist/ekhaya-staging/server/public dist/ekhaya-staging/server/src dist/ekhaya-staging/database
-          cp -a v2/server/public/. dist/ekhaya-staging/server/public/
+          mkdir -p dist/ekhaya-staging/public dist/ekhaya-staging/server/src dist/ekhaya-staging/database
+          cp -a v2/server/public/. dist/ekhaya-staging/public/
           cp -a v2/server/src/. dist/ekhaya-staging/server/src/
           cp v2/server/config.example.php dist/ekhaya-staging/server/config.example.php
           cp v2/database/schema.sql v2/database/auth-additions.sql dist/ekhaya-staging/database/
-          printf '%s\n' \
-            'Ekhaya Scents staging bundle' \
-            'Extract under the hosting account home directory, NOT inside public_html.' \
-            'Recommended: /home/ACCOUNT/ekhaya-staging/server/public is the domain document root.' \
-            'Keep /server/src and /server/config.local.php outside the public web root.' \
-            'Copy server/config.example.php to server/config.local.php and configure staging-only DB credentials.' \
+          printf '%s\\n' \
+            'Ekhaya Scents staging upload' \
+            'Extract this archive into /home/ACCOUNT/ekhaya-staging/.' \
+            'Copy the CONTENTS of public/ into the existing dev domain document root: /home/ACCOUNT/public_html/dev.ekhayascents.co.za/.' \
+            'Keep server/ and database/ outside public_html. Never copy them into the web document root.' \
+            'Copy server/config.example.php to server/config.local.php and set staging-only database credentials.' \
             'Set base_url and allowed_origins to https://dev.ekhayascents.co.za, environment=staging, timezone=Africa/Johannesburg, and a long random rate_limit_secret.' \
+            'The API private root is configured in public/.htaccess for /home/robogirl/ekhaya-staging/server; adjust only if the hosting account username or folder changes.' \
             'Apply database/schema.sql then database/auth-additions.sql to a new empty staging database only.' \
             'Do not import production customer/order data or apply marketing-additions.sql.' \
             'Checkout is not implemented; do not accept payments or real orders on staging.' \
