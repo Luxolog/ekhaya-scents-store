@@ -33,7 +33,7 @@ jobs:
           cp v2/database/schema.sql v2/database/auth-additions.sql dist/ekhaya-staging/database/
           printf '%s\\n' \
             'Ekhaya Scents staging upload' \
-            'Extract this archive into /home/ACCOUNT/ekhaya-staging/.' \
+            'Extract this archive directly into the existing /home/ACCOUNT/ekhaya-staging/ folder.' \
             'Copy the CONTENTS of public/ into the existing dev domain document root: /home/ACCOUNT/public_html/dev.ekhayascents.co.za/.' \
             'Keep server/ and database/ outside public_html. Never copy them into the web document root.' \
             'Copy server/config.example.php to server/config.local.php and set staging-only database credentials.' \
@@ -44,7 +44,7 @@ jobs:
             'Checkout is not implemented; do not accept payments or real orders on staging.' \
             'Preserve the existing php.ini separately if required by the host.' > dist/ekhaya-staging/DEPLOYMENT-NOTES.txt
           cd dist
-          zip -qr ekhaya-scents-staging-bundle.zip ekhaya-staging
+          cd ekhaya-staging\n          zip -qr ../ekhaya-scents-staging-bundle.zip public server database DEPLOYMENT-NOTES.txt\n          cd ..
           unzip -t ekhaya-scents-staging-bundle.zip
           unzip -l ekhaya-scents-staging-bundle.zip
 
