@@ -23,7 +23,7 @@ const optionLabel=o=>{
   document.getElementById("stock").textContent=p.stock_status==="in_stock"?"AVAILABLE":"Availability: "+String(p.stock_status||"").replaceAll("_"," ").toUpperCase();
   const image=p.images?.[0];if(image?.source_path)document.getElementById("media").innerHTML='<img src="'+esc(image.source_path)+'" alt="'+esc(image.alt_text||p.name)+'">';
   let variants=(p.variants||[]).map(v=>({id:String(v.id),label:optionLabel(v.option_values),price:Number(v.sale_price!==null&&v.sale_price!==""?v.sale_price:v.regular_price||0),stock:v.stock_status||p.stock_status}));
-  const isOrigin=/origin|ubulumko|ubunono|ulonwabo|umoya|amandla|isibindi|isithunzi|ubukhosi/i.test(p.name+" "+(p.categories||[]).map(c=>c.name).join(" "));
+  const productContext=p.name+" "+(p.categories||[]).map(c=>c.name+" "+c.slug).join(" ");\n  const isOrigin=/origin|ubulumko|ubunono|ulonwabo|umoya|amandla|isibindi|isithunzi|ubukhosi/i.test(productContext);\n  const isBottle=/bottle|bottles|atomiser|atomizer/i.test(productContext);
   if(!variants.length&&isOrigin){
    variants=["30ml","50ml","100ml"].map(size=>({id:"size-"+size,label:size,price:productPrice(p),stock:p.stock_status}));
   }
