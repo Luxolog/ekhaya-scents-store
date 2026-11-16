@@ -13,7 +13,7 @@ function productPrice(p){return p.sale_price!==null&&p.sale_price!==""?Number(p.
 function card(p){
  const image=p.image_path?'<img loading="lazy" src="'+esc(p.image_path)+'" alt="'+esc(p.name)+'">':'<div class="mini-bottle">'+esc(p.name)+'</div>';
  const available=p.stock_status==="in_stock";
- return '<article class="product-card"><a class="product-visual" href="product.html?slug='+encodeURIComponent(p.slug)+'">'+image+'</a><div class="product-info"><div><h3><a href="product.html?slug='+encodeURIComponent(p.slug)+'">'+esc(p.name)+'</a></h3><p>'+esc(p.short_description||"")+'</p><button class="add-button" data-add="'+esc(p.id)+'" '+(available?'':'disabled')+'>'+(available?'Add to bag +':'Currently unavailable')+'</button></div><strong class="product-price">'+money(productPrice(p))+'</strong></div></article>';
+ return '<article class="product-card"><a class="product-visual" href="product.html?slug='+encodeURIComponent(p.slug)+'">'+image+'</a><div class="product-info"><div><h3><a href="product.html?slug='+encodeURIComponent(p.slug)+'">'+esc(p.name)+'</a></h3><p>'+esc(p.short_description||"")+'</p><a class="add-button" href="product.html?slug='+encodeURIComponent(p.slug)+'">'+(available?'Choose size & quantity →':'View product details →')+'</a></div><strong class="product-price">'+money(productPrice(p))+'</strong></div></article>';
 }
 function emptyMessage(){return '<p class="catalogue-empty">No products match your selection. Try another category or search.</p>'}
 function hasCategory(p,pattern){return p.categories?.some(c=>pattern.test((c.slug||"")+" "+(c.name||"")));}
