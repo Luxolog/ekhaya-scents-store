@@ -77,3 +77,76 @@ footer .wordmark small{color:#d0a75b}
 .whatsapp-float svg{width:25px;height:25px;fill:currentColor}
 @media(max-width:600px){.newsletter-overlay{padding:14px}.newsletter-modal{min-height:0;padding:68px 22px 35px;border-radius:28px}.newsletter-brand{font-size:20px;margin-bottom:25px}.newsletter-modal h2{font-size:32px}.newsletter-description{font-size:15px;line-height:1.7}.newsletter-close{top:16px;right:16px;padding:8px 12px;font-size:11px}.whatsapp-float{right:16px;bottom:16px;padding:13px;border-radius:50%;width:52px;height:52px;justify-content:center;box-sizing:border-box}.whatsapp-float span{display:none}.whatsapp-float svg{width:27px;height:27px}}
 @media(prefers-reduced-motion:reduce){.newsletter-overlay,.whatsapp-float{transition:none}}
+
+
+/* EKHAYA LUXURY GOLD EDITION — inspired by the new brand artwork */
+:root{
+ --ink:#21150e;--black:#100b08;--gold:#d6a23d;--gold-light:#ffe3a0;
+ --cream:#fff5df;--paper:#f5e8d0;--muted:#78634a;--line:#d9b66f;
+ --champagne:#f5d99a;--plum:#421c2a;--emerald:#174b3d;--copper:#a65e35;
+ --gold-gradient:linear-gradient(115deg,#9b641b 0%,#e9b84f 24%,#fff0b5 46%,#d99c2e 67%,#8a5417 100%);
+ --espresso-gradient:radial-gradient(ellipse at 50% 10%,#58402b 0%,#2a1b12 50%,#120c08 100%);
+}
+body{background:linear-gradient(180deg,#f8edda 0%,#f3e4c9 100%);color:#21150e}
+.announcement{background:var(--espresso-gradient);color:#ffe3a0;border-bottom:1px solid #b9852e}
+.site-header{background:rgba(255,246,226,.97);border-bottom:1px solid #d5ad60;box-shadow:0 8px 28px rgba(49,29,10,.12)}
+.wordmark span{color:#21150e;text-shadow:0 1px 0 #fff4d8}
+.wordmark small{color:#a66d1d}
+.site-header nav a{color:#352316}
+.site-header nav a:hover,.text-link:hover{color:#b77b20}
+.cart-trigger{border:1px solid #bd8b36;color:#382311;background:linear-gradient(135deg,#fff7e6,#f0d8a7)}
+.cart-trigger span{color:#a66d1d}
+.hero{background:radial-gradient(ellipse at 78% 35%,#694a2b 0%,#352316 38%,#130d09 82%);border-bottom:1px solid #d6a23d}
+.hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(130deg,transparent 0 45%,#f5d78a0c 50%,transparent 58%)}
+.hero h1,.hero .hero-intro{color:#fff3dc}
+.hero h1 em,.section h2 em,.feature-copy h2 em,.supplies-copy h2 em,.starter-banner h2 em,.partner-section h2 em{background:var(--gold-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-art{background:radial-gradient(ellipse at 50% 45%,#76542f 0%,#342316 48%,#140e09 80%)}
+.hero-orbit{border-color:rgba(255,211,119,.8);box-shadow:0 0 55px rgba(255,190,68,.2)}
+.hero-bottle{border-color:#e2b24f;box-shadow:0 25px 65px #000b,0 0 35px #ffc85a55;color:#ffe4a0}
+.button-gold{background:var(--gold-gradient);color:#241609;border:1px solid #f6d88e;box-shadow:0 8px 26px #9b702b44,inset 0 1px #fff8d8}
+.button-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.button-outline{border-color:#c99a42;color:inherit}
+.intro-strip{background:linear-gradient(90deg,#e6c987,#fff1d2 50%,#dfbd78);color:#63431c;border-block:1px solid #d1a550}
+.section{background:transparent}
+.eyebrow{color:#a87425}
+.section-heading h2,.feature-copy h2,.supplies-copy h2,.starter-banner h2{color:#2a1a10}
+.filter{border-color:#c9aa72;color:#624b2d;background:#fff7e8}
+.filter.active{background:linear-gradient(120deg,#2c1b11,#120c08);border-color:#d6a23d;color:#ffe6ad;box-shadow:inset 0 -2px 0 #e3b957}
+.product-visual{background:linear-gradient(145deg,#fff8e9,#f0dfbd 58%,#e1c58e);border:1px solid #d9b66f;box-shadow:inset 0 0 35px #fff9e9}
+.product-visual:after{border-color:#c59a4e}
+.product-info .product-price{color:#986319}
+.product-info h3 a{color:#2a1a10}
+.add-button{border-bottom-color:#c3943f;color:#805216}
+.split-feature{background:linear-gradient(110deg,#f6e8cb,#e4c993);border-block:1px solid #d4ad63}
+.feature-art{background:radial-gradient(ellipse at 50% 45%,#dfc18a 0%,#a47a43 58%,#54351e 100%)}
+.supplies-section{background:radial-gradient(ellipse at 85% 25%,#5a3d24 0%,#2a1a10 44%,#100a07 100%);border-block:1px solid #d9a945}
+.supplies-copy h2{color:#fff0d3}
+.supplies-copy>p:not(.eyebrow){color:#e1cfad}
+.supply-stilllife{background:radial-gradient(ellipse,#896332 0%,#3a2718 48%,#140d08 80%);border:1px solid #b98735;box-shadow:0 0 35px #e3b75a22}
+.supply-card{background:linear-gradient(145deg,#fff7e6,#efdbb5);border:1px solid #d3ad64;box-shadow:0 8px 22px #4a35151a}
+.supply-card:nth-child(4n+2){border-top:3px solid #9b526b}
+.supply-card:nth-child(4n+3){border-top:3px solid #28705a}
+.supply-card:nth-child(4n+4){border-top:3px solid #b66b3e}
+.supply-card:hover{background:#fff9ec;box-shadow:0 14px 30px #4a35152b}
+.supply-card span,.supply-card b{color:#95621c}
+.starter-banner{background:linear-gradient(110deg,#e8d0a0,#fff3d8 52%,#dfbd7b);border-block:1px solid #c99b48}
+.kit-mark{border-color:#c3943f;color:#a36c1d;box-shadow:inset 0 0 0 7px #b88a3d18,0 0 22px #c3943f22}
+.partner-section{background:radial-gradient(ellipse at 50% 0%,#62452a 0%,#2b1b11 48%,#110b07 100%);border-top:1px solid #d6a23d;color:#fff0d3}
+.partner-section h2{color:#fff0d3}
+.partner-section>p:not(.eyebrow){color:#e2cfac}
+footer{background:linear-gradient(110deg,#100a07,#2b1b11 50%,#100a07);border-top:1px solid #b98735;color:#f8e9c9}
+footer .wordmark span{color:#ffeac0}
+footer .wordmark small{color:#e2b85d}
+footer>p,footer>small{color:#d4bf9b}
+footer>div a{color:#f1ddb8}
+.cart-drawer{background:#fff6e5;border-left:1px solid #d6b16b}
+.cart-head{border-color:#dfc58f}
+.cart-foot{border-color:#dfc58f}
+.newsletter-modal{background:linear-gradient(145deg,#fff7e8,#f0dfbf);border:1px solid #e1bd6d;box-shadow:0 25px 90px #0007,inset 0 0 0 1px #fff9e8}
+.newsletter-brand{color:#2a1a10}
+.newsletter-modal h2{color:#24170f}
+.newsletter-submit{background:var(--gold-gradient);color:#28190d;border:1px solid #f4d88f;box-shadow:0 6px 18px #9b702b33}
+.newsletter-submit:hover{background:var(--gold-gradient);filter:brightness(1.07)}
+.whatsapp-float{box-shadow:0 8px 26px #0004,0 0 0 2px #fff2}
+:focus-visible{outline:2px solid #c99b45;outline-offset:3px}
+@media(max-width:650px){.site-header nav{background:#fff4df;border-bottom:1px solid #d8b56f}}
