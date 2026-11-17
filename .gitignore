@@ -4,3 +4,13 @@ customers*.csv
 .env
 .env.*
 .DS_Store
+
+v2/server/config.local.php
+v2/server/.env
+v2/server/.env.*
+*.pem
+*.key
+*.dump
+*.bak
+*.log
+private-exports/
