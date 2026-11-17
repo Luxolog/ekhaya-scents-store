@@ -233,6 +233,40 @@ try {
    ['sku'=>'HOME-LINEN','name'=>'Linen spray','size'=>null,'price'=>null,'available'=>false,'stock_status'=>'out_of_stock']
   ]]);
  }
+ if ($method==='POST' && preg_match('~/api/reseller/orders/?$~',$path)) {
+  $customer=$currentCustomer(); Auth::verifyCsrf(); Auth::rateLimit($db(),'reseller_order',(string)$customer['email'],8);
+  $q=$db()->prepare("SELECT id,status,reseller_type FROM reseller_accounts WHERE customer_id=? LIMIT 1");
+  $q->execute([(int)$customer['id']]); $account=$q->fetch();
+  if (!$account || $account['status']!=='approved' || $account['reseller_type']!=='stock_buyer') $json(['ok'=>false,'error'=>'approved_stock_reseller_required'],403);
+  $data=$body(); $items=$data['items'] ?? [];
+  if (!is_array($items) || count($items)<1 || count($items)>20) $json(['ok'=>false,'error'=>'invalid_order_items'],422);
+  $catalog=[
+   'ORIGIN-30'=>['name'=>'Origin perfume 30ml','price'=>99.00,'available'=>true],
+   'ORIGIN-50'=>['name'=>'Origin perfume 50ml','price'=>135.00,'available'=>true],
+   'CAR-7'=>['name'=>'Car perfume 7ml','price'=>25.00,'available'=>true]
+  ];
+  $normal=[]; $subtotal=0.00;
+  foreach($items as $item) {
+   if (!is_array($item)) $json(['ok'=>false,'error'=>'invalid_order_item'],422);
+   $sku=(string)($item['sku'] ?? ''); $qty=filter_var($item['quantity'] ?? null,FILTER_VALIDATE_INT);
+   if (!isset($catalog[$sku]) || $qty===false || $qty<1 || $qty>100) $json(['ok'=>false,'error'=>'invalid_or_unavailable_product'],422);
+   $price=$catalog[$sku]['price']; $line=round($price*$qty,2); $subtotal=round($subtotal+$line,2);
+   $normal[]=['sku'=>$sku,'name'=>$catalog[$sku]['name'],'quantity'=>$qty,'price'=>$price,'line'=>$line];
+  }
+  $orderNumber='RS'.gmdate('ymd').strtoupper(bin2hex(random_bytes(4)));
+  $db()->beginTransaction();
+  try {
+   $db()->prepare("INSERT INTO orders (order_number,customer_id,email,status,currency,subtotal,grand_total,customer_note) VALUES (?,?,?,'reseller_request_pending','ZAR',?,?,?)")
+    ->execute([$orderNumber,(int)$customer['id'],(string)$customer['email'],$subtotal,$subtotal,substr(trim((string)($data['note'] ?? '')),0,1000) ?: null]);
+   $orderId=(int)$db()->lastInsertId();
+   $insert=$db()->prepare('INSERT INTO order_items (order_id,product_name_snapshot,sku_snapshot,quantity,unit_price,line_total,metadata) VALUES (?,?,?,?,?,?,?)');
+   foreach($normal as $line) $insert->execute([$orderId,$line['name'],$line['sku'],$line['quantity'],$line['price'],$line['line'],json_encode(['reseller_account_id'=>(int)$account['id']],JSON_THROW_ON_ERROR)]);
+   $db()->prepare('INSERT INTO audit_logs (actor_customer_id,action,entity_type,entity_id,details) VALUES (?,?,?,?,?)')
+    ->execute([(int)$customer['id'],'reseller.order_request_submitted','order',$orderId,json_encode(['order_number'=>$orderNumber,'subtotal'=>$subtotal,'currency'=>'ZAR'],JSON_THROW_ON_ERROR)]);
+   $db()->commit();
+  } catch(Throwable $e) { if($db()->inTransaction()) $db()->rollBack(); throw $e; }
+  $json(['ok'=>true,'message'=>'reseller_order_request_received','order_number'=>$orderNumber,'status'=>'reseller_request_pending','currency'=>'ZAR','subtotal'=>number_format($subtotal,2,'.',''),'items'=>$normal],201);
+ }
  if ($method==='GET' && preg_match('~/api/admin/resellers/?$~',$path)) {
   $adminCustomer=$adminCustomer();
   $q=$db()->query("SELECT r.id,r.reseller_type,r.status,r.referral_code,r.created_at,r.approved_at,c.email,c.first_name,c.last_name,c.phone FROM reseller_accounts r JOIN customers c ON c.id=r.customer_id ORDER BY FIELD(r.status,'pending','approved','rejected','suspended'),r.created_at ASC LIMIT 200");
