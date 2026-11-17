@@ -36,9 +36,22 @@ try {
   $first=trim((string)($data['first_name'] ?? '')); $last=trim((string)($data['last_name'] ?? ''));
   if (!filter_var($email,FILTER_VALIDATE_EMAIL) || strlen($email)>190 || strlen($password)<12 || strlen($password)>200 || strlen($first)>100 || strlen($last)>100) $json(['ok'=>false,'error'=>'invalid_registration_details'],422);
   Auth::rateLimit($db(),'register',$email,5);
+  $referralCode=strtoupper(trim((string)($data['referral_code'] ?? '')));
+  $referrer=null;
+  if ($referralCode!=='') {
+   if (!preg_match('/^EKH[A-F0-9]{8}$/',$referralCode)) $json(['ok'=>false,'error'=>'invalid_referral_code'],422);
+   $rq=$db()->prepare("SELECT id FROM reseller_accounts WHERE referral_code=? AND reseller_type='referral_partner' AND status='approved' LIMIT 1");
+   $rq->execute([$referralCode]); $referrer=$rq->fetch();
+   if (!$referrer) $json(['ok'=>false,'error'=>'invalid_referral_code'],422);
+  }
   try { $db()->prepare('INSERT INTO customers (email,password_hash,first_name,last_name,account_status) VALUES (?,?,?,?,?)')->execute([$email,password_hash($password,PASSWORD_DEFAULT),$first ?: null,$last ?: null,'pending']); }
   catch (PDOException $e) { if ($e->getCode()==='23000') $json(['ok'=>false,'error'=>'account_already_exists'],409); throw $e; }
-  $customerId=(int)$db()->lastInsertId(); $token=bin2hex(random_bytes(32));
+  $customerId=(int)$db()->lastInsertId();
+  if ($referrer) {
+   $db()->prepare("INSERT INTO referrals (referrer_reseller_id,referred_customer_id,referral_code,attribution_status) VALUES (?,?,?,'pending')")
+    ->execute([(int)$referrer['id'],$customerId,$referralCode]);
+  }
+  $token=bin2hex(random_bytes(32));
   $db()->prepare('INSERT INTO email_verification_tokens (customer_id,token_hash,expires_at) VALUES (?,?,?)')->execute([$customerId,hash('sha256',$token),gmdate('Y-m-d H:i:s',time()+86400)]);
   $url=rtrim($config['app']['base_url'],'/').'/verify-email.html?token='.urlencode($token);
   Mailer::send($config,$email,'Verify your Ekhaya Scents account',Mailer::verificationHtml($first,$url));
@@ -232,6 +245,24 @@ try {
    ['sku'=>'HOME-DIFFUSER','name'=>'Reed diffuser','size'=>null,'price'=>null,'available'=>false,'stock_status'=>'out_of_stock'],
    ['sku'=>'HOME-LINEN','name'=>'Linen spray','size'=>null,'price'=>null,'available'=>false,'stock_status'=>'out_of_stock']
   ]]);
+ }
+ if ($method==='GET' && preg_match('~/api/reseller/dashboard/?$~',$path)) {
+  $customer=$currentCustomer();
+  $q=$db()->prepare("SELECT id,reseller_type,status,referral_code,approved_at FROM reseller_accounts WHERE customer_id=? LIMIT 1");
+  $q->execute([(int)$customer['id']]); $account=$q->fetch();
+  if (!$account || $account['status']!=='approved' || $account['reseller_type']!=='referral_partner') $json(['ok'=>false,'error'=>'approved_referral_partner_required'],403);
+  $rq=$db()->prepare("SELECT r.id,r.attribution_status,r.created_at,c.first_name,c.last_name,c.email,r.first_qualifying_order_id FROM referrals r LEFT JOIN customers c ON c.id=r.referred_customer_id WHERE r.referrer_reseller_id=? ORDER BY r.created_at DESC LIMIT 200");
+  $rq->execute([(int)$account['id']]); $referrals=$rq->fetchAll();
+  foreach($referrals as &$referral) {
+   $email=(string)($referral['email'] ?? ''); $parts=explode('@',$email,2);
+   $referral['email_masked']=count($parts)===2 ? substr($parts[0],0,1).'***@'.$parts[1] : '';
+   unset($referral['email']);
+  } unset($referral);
+  $lq=$db()->prepare("SELECT id,order_id,entry_type,amount,status,description,created_at FROM reseller_commission_ledger WHERE reseller_id=? ORDER BY created_at DESC,id DESC LIMIT 200");
+  $lq->execute([(int)$account['id']]); $ledger=$lq->fetchAll();
+  $totals=$db()->prepare("SELECT COALESCE(SUM(CASE WHEN status IN ('pending','approved','payable') AND entry_type<>'payout' THEN amount ELSE 0 END),0) AS outstanding,COALESCE(SUM(CASE WHEN status='paid' AND entry_type<>'payout' THEN amount ELSE 0 END),0) AS paid FROM reseller_commission_ledger WHERE reseller_id=?");
+  $totals->execute([(int)$account['id']]);
+  $json(['ok'=>true,'referral_code'=>$account['referral_code'],'referral_url'=>rtrim((string)$config['app']['base_url'],'/').'/register.html?ref='.rawurlencode((string)$account['referral_code']),'referrals'=>$referrals,'ledger'=>$ledger,'totals'=>$totals->fetch()]);
  }
  if ($method==='POST' && preg_match('~/api/reseller/orders/?$~',$path)) {
   $customer=$currentCustomer(); Auth::verifyCsrf(); Auth::rateLimit($db(),'reseller_order',(string)$customer['email'],8);
