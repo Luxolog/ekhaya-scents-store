@@ -27,7 +27,6 @@ const homeProducts = [
 ];
 
 const supplyProducts = [
- {id:"luxury-packaging",name:"Luxury Packaging Collection",subtitle:"Bottles and presentation options",category:"packaging",image:asset("Ekhaya Scents Luxury Packaging Collection.png")},
  {id:"black-perfume-box",name:"Black Perfume Box",subtitle:"Luxury fragrance presentation",category:"packaging",image:asset("Elegant Black Perfume Box Showcase.png")},
  {id:"white-luxury-box",name:"White Luxury Box",subtitle:"Fragrance packaging",category:"packaging",image:asset("Ekhaya Scents White Luxury Box.png")},
  {id:"nova-black-box",name:"Nova Black Scent Box",subtitle:"30ml presentation box",category:"packaging",image:asset("Elegant Nova 30ml Black Scent Box.png")},
