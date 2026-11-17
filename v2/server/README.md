@@ -76,3 +76,20 @@ Registration creates a pending account and sends a single-use verification link 
 Passwords use PHP `password_hash/password_verify`. Mutating auth requests require a CSRF token. Registration, login and recovery are rate-limited with a server-only HMAC secret. Keep config outside the public web root and use HTTPS. Verify host mail delivery, SPF, DKIM, DMARC and delivery logs before public signups.
 
 This is not production-ready yet: full runtime/security tests, SMTP integration, admin account controls, server-side cart/checkout, order creation and PayFast ITN verification remain. Checkout must stay disabled until secure order creation and PayFast ITN verification are completed. Legacy WooCommerce orders are not yet migrated into the new platform's orders table.
+
+
+## Reseller portal API foundation (staging only)
+
+The existing `reseller_accounts`, `referrals`, `reseller_commission_ledger` and `audit_logs` tables in `../database/schema.sql` support the first reseller application and approval stage. Apply `schema.sql` and `auth-additions.sql` to a dedicated staging database before testing these endpoints.
+
+- GET `/api/reseller/status`: authenticated customer's application state.
+- POST `/api/reseller/apply`: authenticated customer submits `reseller_type` (`stock_buyer` or `referral_partner`); application remains pending.
+- GET `/api/reseller/catalog`: returns the stock-buyer price list only when the authenticated account is approved and is a `stock_buyer`. Pending, rejected, suspended and referral-only accounts receive no prices.
+- GET `/api/admin/resellers`: lists applications for an authenticated admin.
+- POST `/api/admin/resellers/review`: admin approves, rejects or suspends an application. Approval generates a referral code. All review actions are audit logged.
+
+Admin access fails closed unless the private server configuration contains `security.admin_emails`. Set `EKHAYA_ADMIN_EMAILS` to a comma-separated list of designated administrator email addresses in the private staging environment. Do not put admin addresses or credentials in public frontend code. Admins must also have a verified, active customer account and must sign in normally.
+
+The approved stock-buyer price response currently reflects the agreed price list: Origin 30ml R99, Origin 50ml R135, car perfume 7ml R25; reed diffuser and linen spray are unavailable. This API is a protected price-list foundation, not an order/checkout system. Reseller order creation, stock reservation, notifications, payment and fulfilment are not implemented by these endpoints. The existing browser-only reseller prototype must not be used to collect real orders or disclose live prices.
+
+The API code is committed to the development branch only. It is not active on GitHub Pages (which cannot execute PHP). Before use, deploy the PHP public directory to the isolated HTTPS staging host, provision private configuration and database, set the admin allowlist, run the schema, and complete runtime/security tests. Do not point this staging API at the live WooCommerce database.
