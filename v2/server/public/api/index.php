@@ -265,7 +265,29 @@ try {
     ->execute([(int)$customer['id'],'reseller.order_request_submitted','order',$orderId,json_encode(['order_number'=>$orderNumber,'subtotal'=>$subtotal,'currency'=>'ZAR'],JSON_THROW_ON_ERROR)]);
    $db()->commit();
   } catch(Throwable $e) { if($db()->inTransaction()) $db()->rollBack(); throw $e; }
-  $json(['ok'=>true,'message'=>'reseller_order_request_received','order_number'=>$orderNumber,'status'=>'reseller_request_pending','currency'=>'ZAR','subtotal'=>number_format($subtotal,2,'.',''),'items'=>$normal],201);
+
+  // Send best-effort notifications after the order transaction commits. Mail failure
+  // must never undo or misreport the saved order request.
+  $notificationStatus=['customer'=>false,'admin'=>false];
+  $summary=[];
+  foreach($normal as $line) $summary[]=$line['name'].' × '.$line['quantity'].' — R'.number_format($line['line'],2);
+  $safeOrder=htmlspecialchars($orderNumber,ENT_QUOTES,'UTF-8');
+  $safeSummary=implode('<br>',array_map(static fn($line)=>htmlspecialchars($line,ENT_QUOTES,'UTF-8'),$summary));
+  $safeTotal=number_format($subtotal,2,'.','');
+  try {
+   Mailer::send($config,(string)$customer['email'],'Ekhaya reseller order request received — '.$orderNumber,
+    '<div style="font-family:Arial,sans-serif;color:#24211d"><h2>Ekhaya Scents</h2><p>We received your reseller order request <strong>'.$safeOrder.'</strong>.</p><p>'.$safeSummary.'</p><p>Request subtotal: <strong>R'.$safeTotal.'</strong></p><p>This is not a payment confirmation or stock reservation. Our team will confirm availability, delivery charges and payment instructions.</p></div>');
+   $notificationStatus['customer']=true;
+  } catch(Throwable $mailError) { error_log('[ekhaya-reseller] customer notification failed for '.$orderNumber.': '.$mailError->getMessage()); }
+  $adminEmails=array_filter($config['security']['admin_emails'] ?? [],static fn($email)=>filter_var($email,FILTER_VALIDATE_EMAIL));
+  foreach($adminEmails as $adminEmail) {
+   try {
+    Mailer::send($config,(string)$adminEmail,'New Ekhaya reseller order request — '.$orderNumber,
+     '<div style="font-family:Arial,sans-serif;color:#24211d"><h2>New reseller order request</h2><p>Order: <strong>'.$safeOrder.'</strong></p><p>Reseller: '.htmlspecialchars((string)$customer['email'],ENT_QUOTES,'UTF-8').'</p><p>'.$safeSummary.'</p><p>Request subtotal: <strong>R'.$safeTotal.'</strong></p><p>Review availability and contact the reseller. No payment has been collected and no stock has been reserved.</p></div>');
+    $notificationStatus['admin']=true;
+   } catch(Throwable $mailError) { error_log('[ekhaya-reseller] admin notification failed for '.$orderNumber.': '.$mailError->getMessage()); }
+  }
+  $json(['ok'=>true,'message'=>'reseller_order_request_received','order_number'=>$orderNumber,'status'=>'reseller_request_pending','currency'=>'ZAR','subtotal'=>$safeTotal,'items'=>$normal,'notifications'=>$notificationStatus],201);
  }
  if ($method==='GET' && preg_match('~/api/admin/resellers/?$~',$path)) {
   $adminCustomer=$adminCustomer();
