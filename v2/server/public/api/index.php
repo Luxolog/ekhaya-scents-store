@@ -347,6 +347,35 @@ try {
   } catch (Throwable $e) { if ($db()->inTransaction()) $db()->rollBack(); throw $e; }
   $json(['ok'=>true,'status'=>$status,'referral_code'=>$code]);
  }
+ if ($method==='GET' && preg_match('~/api/admin/commissions/?$~',$path)) {
+  $adminCustomer=$adminCustomer();
+  $q=$db()->query("SELECT l.id,l.reseller_id,l.order_id,l.entry_type,l.amount,l.status,l.description,l.created_at,c.email,r.referral_code FROM reseller_commission_ledger l JOIN reseller_accounts r ON r.id=l.reseller_id JOIN customers c ON c.id=r.customer_id ORDER BY FIELD(l.status,'pending','approved','payable','held','paid','reversed'),l.created_at ASC LIMIT 300");
+  $json(['ok'=>true,'commissions'=>$q->fetchAll()]);
+ }
+ if ($method==='POST' && preg_match('~/api/admin/commissions/review/?$~',$path)) {
+  $admin=$adminCustomer(); Auth::verifyCsrf();
+  $data=$body(); $id=(int)($data['ledger_id'] ?? 0); $decision=(string)($data['decision'] ?? '');
+  $reference=trim((string)($data['payout_reference'] ?? ''));
+  if ($id<1 || !in_array($decision,['approve','make_payable','mark_paid'],true) || strlen($reference)>190) $json(['ok'=>false,'error'=>'invalid_commission_review'],422);
+  if ($decision==='mark_paid' && $reference==='') $json(['ok'=>false,'error'=>'payout_reference_required'],422);
+  $db()->beginTransaction();
+  try {
+   $q=$db()->prepare('SELECT id,reseller_id,order_id,entry_type,amount,status FROM reseller_commission_ledger WHERE id=? FOR UPDATE');
+   $q->execute([$id]); $entry=$q->fetch();
+   if (!$entry) { $db()->rollBack(); $json(['ok'=>false,'error'=>'commission_not_found'],404); }
+   $next=['approve'=>['pending','approved'],'make_payable'=>['approved','payable'],'mark_paid'=>['payable','paid']];
+   [$expected,$newStatus]=$next[$decision];
+   if ($entry['status']!==$expected || $entry['entry_type']==='payout' || (float)$entry['amount']<=0) {
+    $db()->rollBack(); $json(['ok'=>false,'error'=>'invalid_commission_status_transition'],409);
+   }
+   $db()->prepare('UPDATE reseller_commission_ledger SET status=? WHERE id=?')->execute([$newStatus,$id]);
+   $details=['previous_status'=>$expected,'new_status'=>$newStatus,'payout_reference'=>$decision==='mark_paid'?$reference:null];
+   $db()->prepare('INSERT INTO audit_logs (actor_customer_id,action,entity_type,entity_id,details) VALUES (?,?,?,?,?)')
+    ->execute([(int)$admin['id'],'commission.'.$decision,'reseller_commission_ledger',$id,json_encode($details,JSON_THROW_ON_ERROR)]);
+   $db()->commit();
+  } catch(Throwable $e) { if($db()->inTransaction()) $db()->rollBack(); throw $e; }
+  $json(['ok'=>true,'ledger_id'=>$id,'status'=>$newStatus]);
+ }
  if ($method==='GET' && preg_match('~/api/categories/?$~',$path)) {
   $categories=$db()->query("SELECT c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order,COUNT(DISTINCT pc.product_id) AS product_count FROM categories c LEFT JOIN product_categories pc ON pc.category_id=c.id LEFT JOIN products p ON p.id=pc.product_id AND p.status='published' WHERE c.is_active=1 GROUP BY c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order ORDER BY c.sort_order,c.name")->fetchAll();
   $json(['ok'=>true,'categories'=>$categories]);
