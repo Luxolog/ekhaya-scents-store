@@ -117,3 +117,54 @@ html,body{background:#f8f5ee}
 .fragrance-collection .section-heading{margin-bottom:30px}
 .fragrance-collection .filters{margin-bottom:28px}
 @media(max-width:650px){.inspired-collection:before{margin:-30px 0 28px auto}.fragrance-collection{scroll-margin-top:78px}}
+
+/* EKHAYA SIGNATURE THEME — obsidian, luminous gold and jewel-tone accents */
+:root{
+ --ink:#17130f;--black:#090807;--gold:#c99b45;--gold-light:#f2d99b;
+ --cream:#fffaf0;--paper:#f7f1e5;--muted:#756b5e;--line:#dfd0b2;
+ --champagne:#ead7ad;--plum:#4b263e;--emerald:#174b3d;--copper:#a65e35;
+ --gold-gradient:linear-gradient(120deg,#8f6728 0%,#d5ad5d 35%,#f4dfa9 52%,#b98634 76%,#80591f 100%);
+}
+body{background:var(--paper);color:var(--ink)}
+.announcement{background:linear-gradient(90deg,#080706,#21170e 48%,#080706);color:#f0d99f;border-bottom:1px solid #8b682e}
+.site-header{background:rgba(255,250,240,.97);border-bottom:1px solid #d9c49b;box-shadow:0 8px 28px rgba(39,26,9,.06)}
+.wordmark span{color:#17120c;text-shadow:0 1px 0 #fff}
+.wordmark small{color:#98702d}
+.site-header nav a:hover,.text-link:hover{color:#a36e1f}
+.cart-trigger{border-color:#b58a43;color:#231a0d}
+.cart-trigger span{color:#a87525}
+.hero{background:radial-gradient(ellipse at 78% 35%,#3d2c1b 0%,#1b1712 35%,#090807 78%);border-bottom:1px solid #8d682d}
+.eyebrow{color:#bd9148}
+.hero h1 em,.section h2 em,.feature-copy h2 em,.supplies-copy h2 em,.starter-banner h2 em,.partner-section h2 em{background:var(--gold-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-art{background:radial-gradient(ellipse at 50% 45%,#604a2d 0%,#211a12 48%,#100e0b 78%)}
+.hero-orbit{border-color:rgba(232,190,107,.58);box-shadow:0 0 55px rgba(194,146,62,.1)}
+.hero-bottle{border-color:#b58b43;box-shadow:0 25px 65px #000b,0 0 35px #d0a34a22;color:#f0d49a}
+.button-gold{background:var(--gold-gradient);color:#1b1409;box-shadow:0 7px 22px #9b702b2b}
+.button-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.button-outline{border-color:#c39a52;color:inherit}
+.intro-strip{background:linear-gradient(90deg,#eee1c7,#f9f3e7 50%,#e8d7b7);color:#705329}
+.filter.active{background:#17120d;border-color:#b88a3e;box-shadow:inset 0 -2px 0 #d9b66e}
+.product-visual{background:linear-gradient(145deg,#fffaf0,#eee2ca 58%,#e6d4b1);border-color:#dfcda8}
+.product-info .product-price{color:#94651f}
+.add-button{border-bottom-color:#b98b3d;color:#76501b}
+.split-feature{background:linear-gradient(110deg,#f2e7d2,#e7d8bc)}
+.feature-art{background:radial-gradient(ellipse at 50% 45%,#d9bd86 0%,#9b7746 58%,#543c27 100%)}
+.supplies-section{background:radial-gradient(ellipse at 85% 25%,#32251a 0%,#15110d 44%,#080706 100%);border-top:1px solid #8e6a32;border-bottom:1px solid #8e6a32}
+.supply-stilllife{background:radial-gradient(ellipse,#725632 0%,#2b2116 48%,#120f0b 80%)}
+.supply-card{background:linear-gradient(145deg,#fffaf0,#eee2ca);border:1px solid #e0cfaa}
+.supply-card:nth-child(4n+2){border-top:3px solid #8b4a68}
+.supply-card:nth-child(4n+3){border-top:3px solid #28705a}
+.supply-card:nth-child(4n+4){border-top:3px solid #b66b3e}
+.supply-card:hover{background:#fff8e9;box-shadow:0 14px 30px #4a35151a}
+.supply-card span{color:#926a2c}
+.supply-card b{color:#80591f}
+.starter-banner{background:linear-gradient(110deg,#eee0c2,#fff8eb 52%,#e7d2a8);border-top:1px solid #dcc69a}
+.kit-mark{border-color:#bc9148;color:#9b702d;box-shadow:inset 0 0 0 7px #b88a3d12}
+.partner-section{background:radial-gradient(ellipse at 50% 0%,#3a2b1d 0%,#17120e 48%,#090807 100%);border-top:1px solid #9b7638}
+footer{background:#080706;border-top:1px solid #80602c}
+footer .wordmark span{color:#f6e8c7}
+footer .wordmark small{color:#d0a75b}
+.cart-drawer{background:#fff9ed}
+.size-select{border-color:#c9a96d;background:#fffaf0}
+:focus-visible{outline:2px solid #c99b45;outline-offset:3px}
+@media(prefers-reduced-motion:no-preference){.button,.supply-card,.product-photo{transition:transform .22s ease,filter .22s ease,box-shadow .22s ease}}
