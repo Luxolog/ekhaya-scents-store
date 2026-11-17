@@ -215,6 +215,16 @@ try {
   if (!$admins || !in_array(strtolower((string)$customer['email']),$admins,true)) Response::json(['ok'=>false,'error'=>'admin_access_required'],403);
   return $customer;
  };
+ // Public checkout attribution choices: only currently approved and active reseller accounts.
+ if ($method==='GET' && preg_match('~/api/checkout/partners/?$~',$path)) {
+  $q=$db()->query("SELECT r.id,r.reseller_type,c.first_name,c.last_name FROM reseller_accounts r JOIN customers c ON c.id=r.customer_id WHERE r.status='approved' AND r.approved_at IS NOT NULL AND c.account_status='active' AND c.email_verified_at IS NOT NULL ORDER BY c.first_name,c.last_name,r.id");
+  $partners=[];
+  foreach($q->fetchAll() as $row) {
+   $name=trim((string)($row['first_name'] ?? '').' '.(string)($row['last_name'] ?? ''));
+   $partners[]=['id'=>(int)$row['id'],'type'=>$row['reseller_type'],'name'=>$name!==''?$name:'Ekhaya partner'];
+  }
+  $json(['ok'=>true,'partners'=>$partners]);
+ }
  if ($method==='GET' && preg_match('~/api/reseller/status/?$~',$path)) {
   $customer=$currentCustomer();
   $q=$db()->prepare('SELECT id,reseller_type,status,referral_code,approved_at,created_at FROM reseller_accounts WHERE customer_id=? LIMIT 1');
