@@ -82,12 +82,13 @@ This is not production-ready yet: full runtime/security tests, SMTP integration,
 
 The existing `reseller_accounts`, `referrals`, `reseller_commission_ledger` and `audit_logs` tables in `../database/schema.sql` support the first reseller application and approval stage. Apply `schema.sql` and `auth-additions.sql` to a dedicated staging database before testing these endpoints.
 
+- GET `/api/referrals/{slug}`: resolves a unique, approved, active and email-verified referral partner by name slug for locked registration attribution.
 - GET `/api/checkout/partners`: public, read-only list of currently approved, active and email-verified referral partners and stock-buying resellers. This is the source for the checkout attribution selector; pending, rejected and suspended accounts are excluded.
 - GET `/api/reseller/status`: authenticated customer's application state.
 - POST `/api/reseller/apply`: authenticated customer submits `reseller_type` (`stock_buyer` or `referral_partner`); application remains pending.
 - GET `/api/reseller/catalog`: returns the stock-buyer price list only when the authenticated account is approved and is a `stock_buyer`.
 - GET `/api/reseller/dashboard`: approved referral partners only; returns their referral URL, masked referred-customer list, and commission-ledger summary.
-- Registration accepts an optional `referral_code`; it validates an approved referral partner and records the referred customer against that partner.
+- Registration accepts a validated referral link. `https://ekhayascents.co.za/luxolo-gozongo` resolves to the approved referral partner named Luxolo Gozongo and pre-attaches that partner to registration. The partner name is displayed as locked; the client submits a referral slug and the server independently resolves it to the approved account, ignoring attempts to substitute another referral code. Legacy `?ref=` links remain supported.
 - GET `/api/admin/commissions`: admin-only commission ledger review list.
 - POST `/api/admin/commissions/review`: admin-only, audited status transitions `pending → approved → payable → paid`; recording paid requires a payout reference. Pending, rejected, suspended and referral-only accounts receive no prices.
 - GET `/api/admin/resellers`: lists applications for an authenticated admin.
