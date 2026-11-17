@@ -3,6 +3,7 @@ SetEnv EKHAYA_PRIVATE_ROOT /home/robogirl/ekhaya-staging/server
 DirectoryIndex index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteRule ^luxolo-gozongo/?$ register.html?partner=luxolo-gozongo [QSA,L]
   RewriteRule ^api/?$ api/index.php [QSA,L]
   RewriteRule ^api/(.*)$ api/index.php [QSA,L]
 </IfModule>
