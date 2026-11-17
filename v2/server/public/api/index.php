@@ -262,7 +262,9 @@ try {
   $lq->execute([(int)$account['id']]); $ledger=$lq->fetchAll();
   $totals=$db()->prepare("SELECT COALESCE(SUM(CASE WHEN status IN ('pending','approved','payable') AND entry_type<>'payout' THEN amount ELSE 0 END),0) AS outstanding,COALESCE(SUM(CASE WHEN status='paid' AND entry_type<>'payout' THEN amount ELSE 0 END),0) AS paid FROM reseller_commission_ledger WHERE reseller_id=?");
   $totals->execute([(int)$account['id']]);
-  $json(['ok'=>true,'referral_code'=>$account['referral_code'],'referral_url'=>rtrim((string)$config['app']['base_url'],'/').'/register.html?ref='.rawurlencode((string)$account['referral_code']),'referrals'=>$referrals,'ledger'=>$ledger,'totals'=>$totals->fetch()]);
+  $pq=$db()->prepare("SELECT l.id AS ledger_id,l.order_id,l.amount,a.created_at AS paid_at,JSON_UNQUOTE(JSON_EXTRACT(a.details,'$.payout_reference')) AS payout_reference FROM reseller_commission_ledger l JOIN audit_logs a ON a.entity_type='reseller_commission_ledger' AND a.entity_id=l.id AND a.action='commission.mark_paid' WHERE l.reseller_id=? ORDER BY a.created_at DESC LIMIT 100");
+  $pq->execute([(int)$account['id']]); $payouts=$pq->fetchAll();
+  $json(['ok'=>true,'referral_code'=>$account['referral_code'],'referral_url'=>rtrim((string)$config['app']['base_url'],'/').'/register.html?ref='.rawurlencode((string)$account['referral_code']),'referrals'=>$referrals,'ledger'=>$ledger,'payouts'=>$payouts,'totals'=>$totals->fetch()]);
  }
  if ($method==='POST' && preg_match('~/api/reseller/orders/?$~',$path)) {
   $customer=$currentCustomer(); Auth::verifyCsrf(); Auth::rateLimit($db(),'reseller_order',(string)$customer['email'],8);
