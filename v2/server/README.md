@@ -93,3 +93,10 @@ Admin access fails closed unless the private server configuration contains `secu
 The approved stock-buyer price response currently reflects the agreed price list: Origin 30ml R99, Origin 50ml R135, car perfume 7ml R25; reed diffuser and linen spray are unavailable. This API is a protected price-list foundation, not an order/checkout system. Reseller order creation, stock reservation, notifications, payment and fulfilment are not implemented by these endpoints. The existing browser-only reseller prototype must not be used to collect real orders or disclose live prices.
 
 The API code is committed to the development branch only. It is not active on GitHub Pages (which cannot execute PHP). Before use, deploy the PHP public directory to the isolated HTTPS staging host, provision private configuration and database, set the admin allowlist, run the schema, and complete runtime/security tests. Do not point this staging API at the live WooCommerce database.
+
+
+### Reseller order-request endpoint
+
+- POST `/api/reseller/orders`: accepts SKU and quantity only from an authenticated, verified, approved `stock_buyer` reseller. Prices are looked up server-side; browser-supplied prices and totals are ignored. Requests are limited to 20 lines and 100 units per SKU. The server writes an order with status `reseller_request_pending`, item snapshots and an audit entry in one database transaction.
+- The endpoint does not deduct stock, charge a payment method, promise stock availability, or trigger email notifications. Ekhaya must confirm availability, delivery and payment instructions manually. Do not describe this as completed checkout.
+- The reseller portal now includes a quantity form that submits this request to the protected endpoint.
