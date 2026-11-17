@@ -36,6 +36,13 @@ try {
   $json(['ok'=>true,'referrer'=>['name'=>trim($matches[0]['first_name'].' '.$matches[0]['last_name']),'referral_code'=>$matches[0]['referral_code']]]);
  }
  if ($method==='GET' && preg_match('~/api/auth/csrf/?$~',$path)) { Auth::start(); $json(['ok'=>true,'csrf_token'=>Auth::csrfToken()]); }
+ if ($method==='POST' && preg_match('~/api/newsletter/subscribe/?$~',$path)) {
+  Auth::start(); Auth::verifyCsrf(); $email=strtolower(trim((string)($body()['email'] ?? '')));
+  if (!filter_var($email,FILTER_VALIDATE_EMAIL) || strlen($email)>190) $json(['ok'=>false,'error'=>'invalid_email'],422);
+  Auth::rateLimit($db(),'newsletter_subscribe',$email,6);
+  $db()->prepare("INSERT INTO newsletter_subscribers (email,status,consented_at,source) VALUES (?,'subscribed',UTC_TIMESTAMP(),'storefront_popup') ON DUPLICATE KEY UPDATE status='subscribed',consented_at=UTC_TIMESTAMP(),unsubscribed_at=NULL,source='storefront_popup'")->execute([$email]);
+  $json(['ok'=>true,'message'=>'newsletter_subscription_saved']);
+ }
  if ($method==='POST' && preg_match('~/api/auth/register/?$~',$path)) {
   Auth::start(); Auth::verifyCsrf(); $data=$body();
   $email=strtolower(trim((string)($data['email'] ?? ''))); $password=(string)($data['password'] ?? '');
