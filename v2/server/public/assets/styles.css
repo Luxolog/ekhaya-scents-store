@@ -53,3 +53,27 @@ footer .wordmark small{color:#d0a75b}
 .size-select{border-color:#c9a96d;background:#fffaf0}
 :focus-visible{outline:2px solid #c99b45;outline-offset:3px}
 @media(prefers-reduced-motion:no-preference){.button,.supply-card,.product-photo{transition:transform .22s ease,filter .22s ease,box-shadow .22s ease}}
+
+
+/* Newsletter sign-up modal and WhatsApp contact shortcut */
+.newsletter-overlay{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:22px;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.newsletter-overlay.is-open{opacity:1;visibility:visible}
+.newsletter-backdrop{position:absolute;inset:0;background:rgba(16,10,12,.68);backdrop-filter:blur(7px)}
+.newsletter-modal{position:relative;width:min(540px,100%);min-height:430px;padding:72px 33px 42px;background:#f4f0e7;border-radius:36px;box-shadow:0 25px 90px #0005;color:#171719}
+.newsletter-close{position:absolute;top:24px;right:24px;border:0;border-radius:28px;padding:11px 18px;background:#edf2f7;color:#64748b;font:700 13px "DM Sans",sans-serif;cursor:pointer}
+.newsletter-close span{font-size:23px;vertical-align:-2px;margin-right:6px}
+.newsletter-brand{text-align:center;font:800 22px "DM Sans",sans-serif;margin:0 0 28px;color:#171719}
+.newsletter-modal h2{font:700 clamp(32px,5vw,38px) "Playfair Display",Georgia,serif;margin:0 0 20px;letter-spacing:-.5px}
+.newsletter-description{font:400 17px/1.75 "DM Sans",sans-serif;color:#526078;margin:0 0 23px}
+.newsletter-form input{width:100%;height:56px;padding:0 18px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;font:16px "DM Sans",sans-serif;box-sizing:border-box;outline-offset:3px}
+.newsletter-submit{width:100%;height:61px;margin-top:13px;border:0;border-radius:14px;background:#caa45c;color:#fff;font:700 17px "DM Sans",sans-serif;cursor:pointer}
+.newsletter-submit:hover{background:#b99048}
+.newsletter-submit span{margin-left:5px}
+.newsletter-privacy{text-align:center;font:13px "DM Sans",sans-serif;color:#91a0b6;margin:15px 0 0}
+.newsletter-message{text-align:center;font:13px/1.5 "DM Sans",sans-serif;color:#416b50;margin:8px 0 0;min-height:18px}
+.newsletter-submit:disabled{opacity:.65;cursor:wait}
+.whatsapp-float{position:fixed;right:24px;bottom:24px;z-index:60;display:flex;align-items:center;gap:10px;padding:13px 18px;border-radius:999px;background:#20b968;color:#fff;box-shadow:0 8px 26px #0003;font:700 13px "DM Sans",sans-serif;transition:transform .2s,box-shadow .2s}
+.whatsapp-float:hover{transform:translateY(-3px);box-shadow:0 12px 30px #0004}
+.whatsapp-float svg{width:25px;height:25px;fill:currentColor}
+@media(max-width:600px){.newsletter-overlay{padding:14px}.newsletter-modal{min-height:0;padding:68px 22px 35px;border-radius:28px}.newsletter-brand{font-size:20px;margin-bottom:25px}.newsletter-modal h2{font-size:32px}.newsletter-description{font-size:15px;line-height:1.7}.newsletter-close{top:16px;right:16px;padding:8px 12px;font-size:11px}.whatsapp-float{right:16px;bottom:16px;padding:13px;border-radius:50%;width:52px;height:52px;justify-content:center;box-sizing:border-box}.whatsapp-float span{display:none}.whatsapp-float svg{width:27px;height:27px}}
+@media(prefers-reduced-motion:reduce){.newsletter-overlay,.whatsapp-float{transition:none}}
