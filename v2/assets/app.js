@@ -25,6 +25,31 @@ const homeProducts = [
  {id:"linen-spray",name:"Linen Spray",subtitle:"250ml · Home fragrance",price:149,image:asset("Linen Spray.png")},
  {id:"car-perfume",name:"Car Perfume",subtitle:"Every journey, beautifully scented",price:65,image:asset("7ml Car Perfume Amber and Oud.png")}
 ];
+
+const supplyProducts = [
+ {id:"luxury-packaging",name:"Luxury Packaging Collection",subtitle:"Bottles and presentation options",category:"packaging",image:asset("Ekhaya Scents Luxury Packaging Collection.png")},
+ {id:"black-perfume-box",name:"Black Perfume Box",subtitle:"Luxury fragrance presentation",category:"packaging",image:asset("Elegant Black Perfume Box Showcase.png")},
+ {id:"white-luxury-box",name:"White Luxury Box",subtitle:"Fragrance packaging",category:"packaging",image:asset("Ekhaya Scents White Luxury Box.png")},
+ {id:"nova-black-box",name:"Nova Black Scent Box",subtitle:"30ml presentation box",category:"packaging",image:asset("Elegant Nova 30ml Black Scent Box.png")},
+ {id:"fragrance-base",name:"Ekhaya Fragrance Base",subtitle:"Fragrance-making essential",category:"tools",image:asset("Ekhaya Fragrance Base Product Label.png")},
+ {id:"fragrance-base-2l",name:"Ekhaya Fragrance Base",subtitle:"2L product label",category:"tools",image:asset("Ekhaya Fragrance Base Product Label 2L.png")},
+ {id:"dosing-syringe",name:"Fragrance Dosing Syringe",subtitle:"Production accessory",category:"tools",image:asset("Ekhaya Scents Fragrance Dosing Syringe.png")},
+ {id:"hand-crimper",name:"Hand-held Crimper Tool",subtitle:"Perfume production tool",category:"tools",image:asset("Ekhaya Scents Hand-held Crimper Tool.png")},
+ {id:"crimp",name:"Ekhaya Scents Crimp",subtitle:"Packaging accessory",category:"tools",image:asset("Ekhaya Scents Crimp.png")},
+ {id:"reed-diffuser-luxury",name:"Luxury Reed Diffuser",subtitle:"Home fragrance",category:"home",image:asset("Ekhaya Scents Luxury Reed Diffuser.png")},
+ {id:"reed-diffuser-emerald",name:"Emerald Reed Diffuser",subtitle:"Home fragrance",category:"home",image:asset("Ekhaya Scents Emerald Reed Diffuser.png")},
+ {id:"linen-spray-supply",name:"Linen Spray",subtitle:"Home fragrance",category:"home",image:asset("Linen Spray.png")},
+ {id:"gold-hanging-diffuser",name:"Gold Hanging Diffusers",subtitle:"Car fragrance accessory",category:"home",image:asset("Luxury Gold ES Hanging Diffusers.png")}
+];
+function supplyCard(p){
+ const subject=encodeURIComponent("Ekhaya Scents catalogue enquiry: "+p.name);
+ return `<article class="product-card supply-product-card"><div class="product-visual"><img class="product-photo" src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="image-fallback" hidden>${p.name}</span></div><div class="product-info"><div><h3>${p.name}</h3><p>${p.subtitle}</p><a class="add-button supply-enquire" href="mailto:hello@ekhayascents.co.za?subject=${subject}">Enquire about this item ↗</a></div><strong class="product-price">Price on enquiry</strong></div></article>`;
+}
+function renderSupplyProducts(filter="all"){
+ const grid=document.getElementById("supplyProductsGrid");
+ if(grid) grid.innerHTML=supplyProducts.filter(p=>filter==="all"||p.category===filter).map(supplyCard).join("");
+}
+
 const cart = new Map();
 const money = n => new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
 function card(p){
@@ -70,6 +95,7 @@ document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",(
  document.querySelectorAll('.filter[data-collection="'+collection+'"]').forEach(b=>b.classList.remove("active"));
  btn.classList.add("active");renderProducts();
 }));
+document.querySelectorAll("[data-supply-filter]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-supply-filter]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderSupplyProducts(btn.dataset.supplyFilter);}));
 const drawer=document.getElementById("cartDrawer"),scrim=document.getElementById("scrim");
 function openCart(){drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");scrim.classList.add("show");}
 function closeCart(){drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");scrim.classList.remove("show");}
@@ -77,4 +103,4 @@ document.getElementById("cartTrigger").addEventListener("click",openCart);docume
 document.getElementById("menuToggle").addEventListener("click",()=>{const nav=document.getElementById("mainNav");const open=nav.classList.toggle("open");document.getElementById("menuToggle").setAttribute("aria-expanded",String(open));});
 document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click",()=>document.getElementById("mainNav").classList.remove("open")));
 document.getElementById("year").textContent=new Date().getFullYear();
-renderProducts();renderCart();
+renderProducts();renderSupplyProducts();renderCart();
