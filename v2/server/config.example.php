@@ -7,7 +7,7 @@ return [
   'timezone'=>'Africa/Johannesburg',
   'allowed_origins'=>array_filter(array_map('trim',explode(',',getenv('EKHAYA_ALLOWED_ORIGINS') ?: 'https://dev.ekhayascents.co.za'))),
  ],
- 'security'=>['rate_limit_secret'=>getenv('EKHAYA_RATE_LIMIT_SECRET') ?: 'REPLACE_WITH_A_LONG_RANDOM_SECRET',
+ 'security'=>['rate_limit_secret'=>getenv('EKHAYA_RATE_LIMIT_SECRET') ?: '',
   'admin_emails'=>array_filter(array_map('trim',explode(',',getenv('EKHAYA_ADMIN_EMAILS') ?: '')))],
  'mail'=>['from_address'=>getenv('EKHAYA_MAIL_FROM') ?: 'hello@ekhayascents.co.za','from_name'=>getenv('EKHAYA_MAIL_NAME') ?: 'Ekhaya Scents'],
  'database'=>[
