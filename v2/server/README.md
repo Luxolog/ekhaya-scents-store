@@ -82,6 +82,7 @@ This is not production-ready yet: full runtime/security tests, SMTP integration,
 
 The existing `reseller_accounts`, `referrals`, `reseller_commission_ledger` and `audit_logs` tables in `../database/schema.sql` support the first reseller application and approval stage. Apply `schema.sql` and `auth-additions.sql` to a dedicated staging database before testing these endpoints.
 
+- GET `/api/checkout/partners`: public, read-only list of currently approved, active and email-verified referral partners and stock-buying resellers. This is the source for the checkout attribution selector; pending, rejected and suspended accounts are excluded.
 - GET `/api/reseller/status`: authenticated customer's application state.
 - POST `/api/reseller/apply`: authenticated customer submits `reseller_type` (`stock_buyer` or `referral_partner`); application remains pending.
 - GET `/api/reseller/catalog`: returns the stock-buyer price list only when the authenticated account is approved and is a `stock_buyer`.
