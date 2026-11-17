@@ -108,3 +108,12 @@ html,body{background:#f8f5ee}
 .cart-drawer{background:#f8f5ee}
 @media(max-width:850px){.product-grid{column-gap:18px;row-gap:28px}.product-visual{aspect-ratio:4/5}}
 @media(max-width:650px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:22px}.product-visual{aspect-ratio:4/5;padding:6px}.product-info{padding:10px 1px 16px;gap:6px}.product-info h3{font-size:15px}.product-info p{font-size:9px}.product-info .product-price{font-size:11px}.size-select{font-size:10px;padding:8px 5px}}
+
+
+/* Clear visual separation between the two fragrance houses */
+.fragrance-collection{scroll-margin-top:100px}
+.inspired-collection{border-top:1px solid #d9cbb0;position:relative}
+.inspired-collection:before{content:"ORIGIN INSPIRED";display:block;width:max-content;margin:-58px 0 42px auto;padding:8px 13px;border:1px solid #cbb58c;color:#967442;font-size:8px;letter-spacing:2px}
+.fragrance-collection .section-heading{margin-bottom:30px}
+.fragrance-collection .filters{margin-bottom:28px}
+@media(max-width:650px){.inspired-collection:before{margin:-30px 0 28px auto}.fragrance-collection{scroll-margin-top:78px}}
