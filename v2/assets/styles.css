@@ -168,3 +168,36 @@ footer .wordmark small{color:#d0a75b}
 .size-select{border-color:#c9a96d;background:#fffaf0}
 :focus-visible{outline:2px solid #c99b45;outline-offset:3px}
 @media(prefers-reduced-motion:no-preference){.button,.supply-card,.product-photo{transition:transform .22s ease,filter .22s ease,box-shadow .22s ease}}
+
+
+/* Ekhaya editorial collection tiles — visual direction from the approved black, gold and jewel-tone concept */
+.category-showcase{padding:76px 7vw 86px;background:linear-gradient(180deg,#f7f1e5 0%,#fffaf0 100%);border-bottom:1px solid #e5d5b4}
+.category-heading{text-align:center;max-width:600px;margin:0 auto 34px}
+.category-heading h2{font:500 clamp(36px,4vw,52px)/1.08 "Playfair Display",serif;margin:12px 0;color:#17130f}
+.category-heading h2 em{font-weight:500;background:var(--gold-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.category-heading>p:last-child{font-size:12px;line-height:1.8;color:#756b5e;margin:0 auto;max-width:460px}
+.category-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;max-width:1320px;margin:0 auto}
+.category-tile{min-height:330px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:20px;color:#fff8e9;border:1px solid #b18b4d;isolation:isolate;transition:transform .25s ease,box-shadow .25s ease}
+.category-tile:hover{transform:translateY(-5px);box-shadow:0 18px 34px #291b1026}
+.tile-origin{background:radial-gradient(ellipse at 50% 44%,#644a2a 0%,#241a11 50%,#100d09 100%)}
+.tile-inspired{background:radial-gradient(ellipse at 55% 40%,#75465f 0%,#3c2033 56%,#1b1119 100%)}
+.tile-home{background:radial-gradient(ellipse at 50% 42%,#4e806b 0%,#1b4a3b 55%,#102b23 100%)}
+.tile-maker{background:radial-gradient(ellipse at 50% 42%,#b77a4c 0%,#74452e 54%,#352017 100%)}
+.tile-kicker{font-size:8px;letter-spacing:1.8px;color:#f0d9a5;z-index:2}
+.tile-art{position:absolute;inset:48px 10px 82px;display:flex;align-items:center;justify-content:center;z-index:-1}
+.tile-bottle:before{content:"";width:94px;height:168px;border:1px solid #d8b66d;background:linear-gradient(90deg,#090807,#282017 48%,#090807);box-shadow:18px 25px 38px #0008;position:absolute}
+.tile-bottle i{position:absolute;width:34px;height:37px;background:linear-gradient(90deg,#282017,#c49a52,#282017);top:calc(50% - 107px)}
+.tile-bottle b{font:14px "Playfair Display",serif;letter-spacing:3px;color:#f0d49a;z-index:1}
+.tile-bottle small{position:absolute;top:calc(50% + 19px);font-size:6px;letter-spacing:1.7px;color:#e5ca91}
+.tile-orbit-art:before,.tile-orbit-art:after{content:"";position:absolute;border:1px solid #e4c7a1;border-radius:50%;width:190px;height:190px}
+.tile-orbit-art:after{width:142px;height:142px;border-color:#e4c7a177}
+.tile-orbit-art i{width:76px;height:136px;border:1px solid #d7b77b;background:linear-gradient(90deg,#15100f,#60404e,#171014);box-shadow:12px 18px 30px #0007;z-index:1}
+.tile-vessel:before{content:"";width:92px;height:145px;border:1px solid #e5d9c1;border-radius:12px 12px 22px 22px;background:linear-gradient(90deg,#ffffff18,#ffffff80,#ffffff20);box-shadow:20px 24px 35px #09251c66}
+.tile-vessel i{position:absolute;width:30px;height:32px;top:calc(50% - 88px);background:linear-gradient(90deg,#241d16,#d1b77f,#241d16)}
+.tile-box-art i{width:130px;height:155px;display:grid;place-items:center;border:1px solid #e7c58b;background:linear-gradient(145deg,#21150f,#563323 55%,#1a100b);box-shadow:18px 24px 35px #1b0e0a88;font:70px "Playfair Display",serif;color:#e8c47f}
+.tile-bottom{display:flex;flex-direction:column;gap:7px;z-index:2}
+.tile-bottom strong{font:500 23px "Playfair Display",serif;color:#fff7e8}
+.tile-bottom small{font-size:9px;line-height:1.5;letter-spacing:.3px;color:#f0dfc2}
+@media(max-width:950px){.category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.category-tile{min-height:300px}}
+@media(max-width:600px){.category-showcase{padding:58px 6vw 64px}.category-tiles{gap:10px}.category-tile{min-height:245px;padding:14px}.tile-art{inset:42px 6px 70px}.tile-bottom strong{font-size:18px}.tile-bottom small{font-size:8px}.tile-kicker{font-size:7px;letter-spacing:1.2px}}
+@media(prefers-reduced-motion:reduce){.category-tile{transition:none}.category-tile:hover{transform:none}}
