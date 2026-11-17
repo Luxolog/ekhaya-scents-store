@@ -29,6 +29,12 @@ try {
  $json=static function(array $data,int $status=200): never { Response::json($data,$status); };
  if ($method==='GET' && preg_match('~/api/?$~',$path)) $json(['ok'=>true,'service'=>'ekhaya-scents-api','environment'=>$config['app']['environment'] ?? 'staging','version'=>'0.3.0']);
  if ($method==='GET' && preg_match('~/api/health/?$~',$path)) { $db()->query('SELECT 1'); $json(['ok'=>true,'database'=>'connected','time'=>gmdate('c')]); }
+ if ($method==='GET' && preg_match('~/api/referrals/([a-z0-9-]+)/?$~',$path,$m)) {
+  $q=$db()->query("SELECT r.id,r.referral_code,c.first_name,c.last_name FROM reseller_accounts r JOIN customers c ON c.id=r.customer_id WHERE r.reseller_type='referral_partner' AND r.status='approved' AND r.approved_at IS NOT NULL AND c.account_status='active' AND c.email_verified_at IS NOT NULL");
+  $matches=[]; foreach ($q->fetchAll() as $row) { $slug=strtolower(trim(preg_replace('/[^a-z0-9]+/i','-',trim((string)$row['first_name'].' '.$row['last_name'])),'-')); if ($slug===$m[1]) $matches[]=$row; }
+  if (count($matches)!==1) $json(['ok'=>false,'error'=>'referral_link_unavailable'],404);
+  $json(['ok'=>true,'referrer'=>['name'=>trim($matches[0]['first_name'].' '.$matches[0]['last_name']),'referral_code'=>$matches[0]['referral_code']]]);
+ }
  if ($method==='GET' && preg_match('~/api/auth/csrf/?$~',$path)) { Auth::start(); $json(['ok'=>true,'csrf_token'=>Auth::csrfToken()]); }
  if ($method==='POST' && preg_match('~/api/auth/register/?$~',$path)) {
   Auth::start(); Auth::verifyCsrf(); $data=$body();
@@ -36,11 +42,18 @@ try {
   $first=trim((string)($data['first_name'] ?? '')); $last=trim((string)($data['last_name'] ?? ''));
   if (!filter_var($email,FILTER_VALIDATE_EMAIL) || strlen($email)>190 || strlen($password)<12 || strlen($password)>200 || strlen($first)>100 || strlen($last)>100) $json(['ok'=>false,'error'=>'invalid_registration_details'],422);
   Auth::rateLimit($db(),'register',$email,5);
+  $referralSlug=strtolower(trim((string)($data['referral_slug'] ?? '')));
   $referralCode=strtoupper(trim((string)($data['referral_code'] ?? '')));
   $referrer=null;
-  if ($referralCode!=='') {
+  if ($referralSlug!=='') {
+   if (!preg_match('/^[a-z0-9-]{2,100}$/',$referralSlug)) $json(['ok'=>false,'error'=>'invalid_referral_link'],422);
+   $rq=$db()->query("SELECT r.id,r.referral_code,c.first_name,c.last_name FROM reseller_accounts r JOIN customers c ON c.id=r.customer_id WHERE r.reseller_type='referral_partner' AND r.status='approved' AND r.approved_at IS NOT NULL AND c.account_status='active' AND c.email_verified_at IS NOT NULL");
+   $matches=[]; foreach ($rq->fetchAll() as $row) { $slug=strtolower(trim(preg_replace('/[^a-z0-9]+/i','-',trim((string)$row['first_name'].' '.$row['last_name'])),'-')); if ($slug===$referralSlug) $matches[]=$row; }
+   if (count($matches)!==1) $json(['ok'=>false,'error'=>'invalid_referral_link'],422);
+   $referrer=$matches[0]; $referralCode=(string)$referrer['referral_code'];
+  } elseif ($referralCode!=='') {
    if (!preg_match('/^EKH[A-F0-9]{8}$/',$referralCode)) $json(['ok'=>false,'error'=>'invalid_referral_code'],422);
-   $rq=$db()->prepare("SELECT id FROM reseller_accounts WHERE referral_code=? AND reseller_type='referral_partner' AND status='approved' LIMIT 1");
+   $rq=$db()->prepare("SELECT id,referral_code FROM reseller_accounts WHERE referral_code=? AND reseller_type='referral_partner' AND status='approved' AND approved_at IS NOT NULL LIMIT 1");
    $rq->execute([$referralCode]); $referrer=$rq->fetch();
    if (!$referrer) $json(['ok'=>false,'error'=>'invalid_referral_code'],422);
   }
