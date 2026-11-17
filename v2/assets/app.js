@@ -18,7 +18,7 @@ const inspiredProducts = [
  {id:"black-opium",name:"BLACK OPIUM",subtitle:"Origin Inspired · For Her",audience:"her",kind:"inspired",image:asset("Origin Inspired Black Opium_For Her.png")},
  {id:"good-girl",name:"GOOD GIRL",subtitle:"Origin Inspired · For Her",audience:"her",kind:"inspired",image:asset("Origin Inspired Good Girl_For Her.png")},
  {id:"invictus",name:"INVICTUS",subtitle:"Origin Inspired · For Him",audience:"him",kind:"inspired",image:asset("Origin Inspired Invictus_For Him.png")},
- {id:"la-vie-est-belle",name:"LA VIE EST BELLE",subtitle:"Origin Inspired · For Her",audience:"her",kind:"inspired",image:asset("Origin_ Inspired_ La Vie Est Belle_For Her.png")}
+ {id:"la-vie-est-belle",name:"LA VIE EST BELLE",subtitle:"Origin Inspired · For Her",audience:"her",kind:"inspired",image:asset("Origin Inspired_ La Vie Est Belle_For Her.png")}
 ];
 const homeProducts = [
  {id:"reed-diffuser",name:"Reed Diffuser",subtitle:"150ml · Home fragrance",price:299,image:asset("Reed Diffuser.jpeg")},
