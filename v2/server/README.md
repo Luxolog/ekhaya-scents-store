@@ -84,13 +84,17 @@ The existing `reseller_accounts`, `referrals`, `reseller_commission_ledger` and 
 
 - GET `/api/reseller/status`: authenticated customer's application state.
 - POST `/api/reseller/apply`: authenticated customer submits `reseller_type` (`stock_buyer` or `referral_partner`); application remains pending.
-- GET `/api/reseller/catalog`: returns the stock-buyer price list only when the authenticated account is approved and is a `stock_buyer`. Pending, rejected, suspended and referral-only accounts receive no prices.
+- GET `/api/reseller/catalog`: returns the stock-buyer price list only when the authenticated account is approved and is a `stock_buyer`.
+- GET `/api/reseller/dashboard`: approved referral partners only; returns their referral URL, masked referred-customer list, and commission-ledger summary.
+- Registration accepts an optional `referral_code`; it validates an approved referral partner and records the referred customer against that partner.
+- GET `/api/admin/commissions`: admin-only commission ledger review list.
+- POST `/api/admin/commissions/review`: admin-only, audited status transitions `pending → approved → payable → paid`; recording paid requires a payout reference. Pending, rejected, suspended and referral-only accounts receive no prices.
 - GET `/api/admin/resellers`: lists applications for an authenticated admin.
 - POST `/api/admin/resellers/review`: admin approves, rejects or suspends an application. Approval generates a referral code. All review actions are audit logged.
 
 Admin access fails closed unless the private server configuration contains `security.admin_emails`. Set `EKHAYA_ADMIN_EMAILS` to a comma-separated list of designated administrator email addresses in the private staging environment. Do not put admin addresses or credentials in public frontend code. Admins must also have a verified, active customer account and must sign in normally.
 
-The approved stock-buyer price response currently reflects the agreed price list: Origin 30ml R99, Origin 50ml R135, car perfume 7ml R25; reed diffuser and linen spray are unavailable. This API is a protected price-list foundation, not an order/checkout system. Reseller order creation, stock reservation, notifications, payment and fulfilment are not implemented by these endpoints. The existing browser-only reseller prototype must not be used to collect real orders or disclose live prices.
+The approved stock-buyer price response currently reflects the agreed price list: Origin 30ml R99, Origin 50ml R135, car perfume 7ml R25; reed diffuser and linen spray are unavailable. This API is a protected price-list foundation, not an order/checkout system. Referral attribution currently records registration from a valid partner link. Automatic qualifying-order attribution and commission creation are not yet connected to a verified customer checkout/payment event; do not promise calculated referral earnings until that integration and its refund/reversal handling are implemented and tested. Admin payout status is an audited manual record only; it does not transfer funds. Reseller order creation, stock reservation, notifications, payment and fulfilment are not implemented by these endpoints. The existing browser-only reseller prototype must not be used to collect real orders or disclose live prices.
 
 The API code is committed to the development branch only. It is not active on GitHub Pages (which cannot execute PHP). Before use, deploy the PHP public directory to the isolated HTTPS staging host, provision private configuration and database, set the admin allowlist, run the schema, and complete runtime/security tests. Do not point this staging API at the live WooCommerce database.
 
