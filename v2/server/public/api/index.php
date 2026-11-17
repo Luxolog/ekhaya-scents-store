@@ -188,6 +188,78 @@ try {
   $q=$db()->prepare("DELETE a FROM customer_addresses a JOIN customers c ON c.id=a.customer_id WHERE a.id=? AND a.customer_id=? AND c.account_status='active' AND c.email_verified_at IS NOT NULL"); $q->execute([$addressId,$id]);
   $json(['ok'=>true,'deleted'=>$q->rowCount()===1]);
  }
+ // Reseller portal: every price response is guarded by the authenticated server-side approval state.
+ $currentCustomer=static function() use ($db): array {
+  Auth::start(); $id=(int)($_SESSION['customer_id'] ?? 0);
+  if ($id<1) Response::json(['ok'=>false,'error'=>'authentication_required'],401);
+  $q=$db()->prepare("SELECT id,email,first_name,last_name,account_status,email_verified_at FROM customers WHERE id=? LIMIT 1");
+  $q->execute([$id]); $customer=$q->fetch();
+  if (!$customer || $customer['account_status']!=='active' || empty($customer['email_verified_at'])) Response::json(['ok'=>false,'error'=>'authentication_required'],401);
+  return $customer;
+ };
+ $adminCustomer=static function() use ($currentCustomer,$config): array {
+  $customer=$currentCustomer(); $admins=array_map('strtolower',array_filter($config['security']['admin_emails'] ?? []));
+  if (!$admins || !in_array(strtolower((string)$customer['email']),$admins,true)) Response::json(['ok'=>false,'error'=>'admin_access_required'],403);
+  return $customer;
+ };
+ if ($method==='GET' && preg_match('~/api/reseller/status/?$~',$path)) {
+  $customer=$currentCustomer();
+  $q=$db()->prepare('SELECT id,reseller_type,status,referral_code,approved_at,created_at FROM reseller_accounts WHERE customer_id=? LIMIT 1');
+  $q->execute([(int)$customer['id']]); $account=$q->fetch() ?: null;
+  $json(['ok'=>true,'reseller'=>$account]);
+ }
+ if ($method==='POST' && preg_match('~/api/reseller/apply/?$~',$path)) {
+  $customer=$currentCustomer(); Auth::verifyCsrf(); Auth::rateLimit($db(),'reseller_apply',(string)$customer['email'],3);
+  $data=$body(); $type=(string)($data['reseller_type'] ?? '');
+  if (!in_array($type,['referral_partner','stock_buyer'],true)) $json(['ok'=>false,'error'=>'invalid_reseller_type'],422);
+  $existing=$db()->prepare('SELECT id,status FROM reseller_accounts WHERE customer_id=? LIMIT 1'); $existing->execute([(int)$customer['id']]);
+  if ($existing->fetch()) $json(['ok'=>false,'error'=>'application_already_exists'],409);
+  $db()->prepare("INSERT INTO reseller_accounts (customer_id,reseller_type,status) VALUES (?,?,'pending')")->execute([(int)$customer['id'],$type]);
+  $id=(int)$db()->lastInsertId();
+  $db()->prepare("INSERT INTO audit_logs (actor_customer_id,action,entity_type,entity_id,details) VALUES (?,?,?,?,?)")
+    ->execute([(int)$customer['id'],'reseller.application_submitted','reseller_account',$id,json_encode(['reseller_type'=>$type],JSON_THROW_ON_ERROR)]);
+  $json(['ok'=>true,'message'=>'application_submitted_pending_review','status'=>'pending'],201);
+ }
+ if ($method==='GET' && preg_match('~/api/reseller/catalog/?$~',$path)) {
+  $customer=$currentCustomer();
+  $q=$db()->prepare('SELECT reseller_type,status FROM reseller_accounts WHERE customer_id=? LIMIT 1'); $q->execute([(int)$customer['id']]); $account=$q->fetch();
+  if (!$account || $account['status']!=='approved') $json(['ok'=>false,'error'=>'reseller_approval_required'],403);
+  if ($account['reseller_type']!=='stock_buyer') $json(['ok'=>false,'error'=>'stock_buyer_access_required'],403);
+  $json(['ok'=>true,'currency'=>'ZAR','products'=>[
+   ['sku'=>'ORIGIN-30','name'=>'Origin perfume','size'=>'30ml','price'=>99.00,'available'=>true],
+   ['sku'=>'ORIGIN-50','name'=>'Origin perfume','size'=>'50ml','price'=>135.00,'available'=>true],
+   ['sku'=>'CAR-7','name'=>'Car perfume','size'=>'7ml','price'=>25.00,'available'=>true],
+   ['sku'=>'HOME-DIFFUSER','name'=>'Reed diffuser','size'=>null,'price'=>null,'available'=>false,'stock_status'=>'out_of_stock'],
+   ['sku'=>'HOME-LINEN','name'=>'Linen spray','size'=>null,'price'=>null,'available'=>false,'stock_status'=>'out_of_stock']
+  ]]);
+ }
+ if ($method==='GET' && preg_match('~/api/admin/resellers/?$~',$path)) {
+  $adminCustomer=$adminCustomer();
+  $q=$db()->query("SELECT r.id,r.reseller_type,r.status,r.referral_code,r.created_at,r.approved_at,c.email,c.first_name,c.last_name,c.phone FROM reseller_accounts r JOIN customers c ON c.id=r.customer_id ORDER BY FIELD(r.status,'pending','approved','rejected','suspended'),r.created_at ASC LIMIT 200");
+  $json(['ok'=>true,'resellers'=>$q->fetchAll()]);
+ }
+ if ($method==='POST' && preg_match('~/api/admin/resellers/review/?$~',$path)) {
+  $adminCustomer=$adminCustomer(); Auth::verifyCsrf();
+  $data=$body(); $id=(int)($data['reseller_id'] ?? 0); $decision=(string)($data['decision'] ?? '');
+  if ($id<1 || !in_array($decision,['approve','reject','suspend'],true)) $json(['ok'=>false,'error'=>'invalid_review_request'],422);
+  $status=['approve'=>'approved','reject'=>'rejected','suspend'=>'suspended'][$decision];
+  $db()->beginTransaction();
+  try {
+   $q=$db()->prepare('SELECT id,status FROM reseller_accounts WHERE id=? FOR UPDATE'); $q->execute([$id]); $row=$q->fetch();
+   if (!$row) { $db()->rollBack(); $json(['ok'=>false,'error'=>'reseller_not_found'],404); }
+   $code=null;
+   if ($decision==='approve') {
+    $code='EKH'.strtoupper(bin2hex(random_bytes(4)));
+    $db()->prepare('UPDATE reseller_accounts SET status=?,approved_at=UTC_TIMESTAMP(),referral_code=? WHERE id=?')->execute([$status,$code,$id]);
+   } else {
+    $db()->prepare('UPDATE reseller_accounts SET status=?,approved_at=NULL WHERE id=?')->execute([$status,$id]);
+   }
+   $db()->prepare('INSERT INTO audit_logs (actor_customer_id,action,entity_type,entity_id,details) VALUES (?,?,?,?,?)')
+    ->execute([(int)$adminCustomer['id'],'reseller.application_'.$decision,'reseller_account',$id,json_encode(['previous_status'=>$row['status'],'new_status'=>$status],JSON_THROW_ON_ERROR)]);
+   $db()->commit();
+  } catch (Throwable $e) { if ($db()->inTransaction()) $db()->rollBack(); throw $e; }
+  $json(['ok'=>true,'status'=>$status,'referral_code'=>$code]);
+ }
  if ($method==='GET' && preg_match('~/api/categories/?$~',$path)) {
   $categories=$db()->query("SELECT c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order,COUNT(DISTINCT pc.product_id) AS product_count FROM categories c LEFT JOIN product_categories pc ON pc.category_id=c.id LEFT JOIN products p ON p.id=pc.product_id AND p.status='published' WHERE c.is_active=1 GROUP BY c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order ORDER BY c.sort_order,c.name")->fetchAll();
   $json(['ok'=>true,'categories'=>$categories]);
