@@ -207,3 +207,11 @@ footer .wordmark small{color:#d0a75b}
 .supplies-section .supply-stilllife{background:radial-gradient(ellipse at 50% 45%,#59452e 0%,#2b2116 55%,#17120d 100%);overflow:hidden}
 .supplies-section .supply-photo{mix-blend-mode:normal!important;filter:none!important;opacity:1;object-fit:contain;background:transparent;padding:0;max-height:390px;width:100%;position:relative;z-index:1}
 .supplies-section .supply-note{z-index:2;text-shadow:0 2px 8px #000}
+
+/* Supplies catalogue cards */
+.supply-filters{margin:0 0 28px;display:flex;flex-wrap:wrap;gap:8px}
+.supply-product-grid{margin-top:8px}
+.supply-product-card .product-info{min-height:112px}
+.supply-product-card .product-price{font-size:11px!important;white-space:normal!important;text-align:right;max-width:95px;line-height:1.5}
+.supply-enquire{display:inline-block;text-decoration:none;font-size:10px}
+.catalogue-note{margin:24px 0 0;color:#756b5e;font-size:10px;line-height:1.7}
