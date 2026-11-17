@@ -48,7 +48,7 @@ The marketing/customer-engagement schema is not required for the storefront depl
 ## Newsletter and contact
 
 - POST `/api/newsletter/subscribe`: CSRF-protected, rate-limited newsletter opt-in. Stores the email, consent timestamp and source in `newsletter_subscribers`; repeat sign-ups reactivate the existing record. Apply the updated `../database/schema.sql` to staging before using this endpoint.
-- The storefront popup is a visual opt-in form; it only displays success after the API confirms the subscription. The floating WhatsApp shortcut opens a chat with Ekhaya Scents at +27 73 846 8238.
+- The storefront popup is an opt-in form; it only displays success after the API confirms the subscription. The floating WhatsApp shortcut opens a chat with Ekhaya Scents' dedicated number, +27 64 893 5154 (064 893 5154).
 
 ## Customer endpoints
 
