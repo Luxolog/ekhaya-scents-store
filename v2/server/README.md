@@ -100,3 +100,7 @@ The API code is committed to the development branch only. It is not active on Gi
 - POST `/api/reseller/orders`: accepts SKU and quantity only from an authenticated, verified, approved `stock_buyer` reseller. Prices are looked up server-side; browser-supplied prices and totals are ignored. Requests are limited to 20 lines and 100 units per SKU. The server writes an order with status `reseller_request_pending`, item snapshots and an audit entry in one database transaction.
 - The endpoint does not deduct stock, charge a payment method, promise stock availability, or trigger email notifications. Ekhaya must confirm availability, delivery and payment instructions manually. Do not describe this as completed checkout.
 - The reseller portal now includes a quantity form that submits this request to the protected endpoint.
+
+### Session security
+
+The PHP session cookie is HTTPS-only (`Secure`, `HttpOnly`, `SameSite=Lax`) and PHP strict session mode plus cookie-only sessions are enabled. Serve the API exclusively over HTTPS; do not test authenticated flows over plain HTTP. Login rotates the session ID and CSRF token.
