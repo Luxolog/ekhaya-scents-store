@@ -93,6 +93,26 @@
 
   <aside class="cart-drawer" id="cartDrawer" aria-hidden="true"><div class="cart-head"><h2>Your bag</h2><button id="cartClose" aria-label="Close bag">×</button></div><div id="cartItems" class="cart-items"><p class="empty-cart">Your bag is waiting for something special.</p></div><div class="cart-foot"><div><span>Subtotal</span><strong id="cartSubtotal">R0.00</strong></div><p>Delivery is calculated at checkout.</p><button class="button button-gold" id="checkoutButton" disabled>Checkout coming soon</button><small>This preview does not accept payments or create orders.</small></div></aside>
   <div class="scrim" id="scrim"></div>
+  <section class="newsletter-overlay" id="newsletterOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="newsletterTitle">
+    <div class="newsletter-backdrop" data-newsletter-close></div>
+    <div class="newsletter-modal">
+      <button class="newsletter-close" type="button" data-newsletter-close aria-label="Close newsletter sign-up"><span aria-hidden="true">×</span> CLOSE</button>
+      <p class="newsletter-brand">Ekhaya Scents.</p>
+      <h2 id="newsletterTitle">Join Newsletter</h2>
+      <p class="newsletter-description">Subscribe to get our latest news, updates, and offers delivered straight to your inbox.</p>
+      <form id="newsletterForm" class="newsletter-form">
+        <label class="sr-only" for="newsletterEmail">Email address</label>
+        <input id="newsletterEmail" name="email" type="email" placeholder="Email address" autocomplete="email" required maxlength="190">
+        <button type="submit" class="newsletter-submit">Subscribe <span aria-hidden="true">→</span></button>
+        <p class="newsletter-privacy">No spam, ever. Unsubscribe at any time.</p>
+        <p class="newsletter-message" id="newsletterMessage" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+  <a class="whatsapp-float" href="https://wa.me/27738468238?text=Hello%20Ekhaya%20Scents%2C%20I%20need%20assistance." target="_blank" rel="noopener noreferrer" aria-label="Chat to Ekhaya Scents on WhatsApp" title="Chat with us on WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.04 3.2A12.7 12.7 0 0 0 5.1 22.35L3.4 28.6l6.4-1.68A12.7 12.7 0 1 0 16.04 3.2Zm0 23.1c-2 0-3.95-.54-5.65-1.57l-.4-.24-3.8 1 1.02-3.7-.26-.4a10.4 10.4 0 1 1 9.09 4.91Zm5.7-7.8c-.31-.16-1.83-.9-2.11-1-.29-.1-.5-.16-.7.16-.2.3-.8 1-1 1.2-.18.2-.36.23-.67.08-.31-.16-1.3-.48-2.47-1.5-.91-.8-1.53-1.8-1.71-2.1-.18-.31-.02-.48.14-.63.14-.14.31-.36.47-.54.15-.18.2-.31.3-.52.1-.2.05-.39-.03-.54-.08-.16-.7-1.68-.96-2.3-.25-.6-.5-.52-.7-.53h-.6c-.2 0-.54.08-.83.39-.28.3-1.08 1.05-1.08 2.57s1.1 2.98 1.25 3.19c.16.2 2.16 3.3 5.23 4.62.73.31 1.3.5 1.74.64.73.23 1.4.2 1.92.12.59-.09 1.83-.75 2.08-1.48.26-.72.26-1.34.18-1.47-.08-.13-.28-.2-.59-.36Z"/></svg>
+    <span>WhatsApp</span>
+  </a>
   <script src="assets/app.js"></script>
 </body>
 </html>
