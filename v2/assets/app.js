@@ -33,9 +33,10 @@ function card(p){
  return `<article class="product-card"><div class="product-visual"><img class="product-photo" src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="image-fallback" hidden>${p.name}</span></div><div class="product-info"><div><h3>${p.name}</h3><p>${p.subtitle||""}</p>${isPerfume?`<label class="size-label" for="size-${p.id}">Choose size</label><select class="size-select" id="size-${p.id}" data-size-for="${p.id}">${sizes.map(s=>`<option value="${s}">${s} — ${money(sizePrices[p.kind][s])}</option>`).join("")}</select>`: ""}<button class="add-button" data-add="${p.id}">Add to bag +</button></div><strong class="product-price" data-price-for="${p.id}">${money(price)}</strong></div></article>`
 }
 function renderProducts(){
- const filter=document.querySelector(".filter.active")?.dataset.filter||"all";
- const all=[...signatureProducts,...inspiredProducts];
- document.getElementById("fragranceGrid").innerHTML=all.filter(p=>filter==="all"||p.audience===filter).map(card).join("");
+ const signatureFilter=document.querySelector('.filter.active[data-collection="signature"]')?.dataset.filter||"all";
+ const inspiredFilter=document.querySelector('.filter.active[data-collection="inspired"]')?.dataset.filter||"all";
+ document.getElementById("signatureGrid").innerHTML=signatureProducts.filter(p=>signatureFilter==="all"||p.audience===signatureFilter).map(card).join("");
+ document.getElementById("inspiredGrid").innerHTML=inspiredProducts.filter(p=>inspiredFilter==="all"||p.audience===inspiredFilter).map(card).join("");
  document.getElementById("homeGrid").innerHTML=homeProducts.map(card).join("");
 }
 function renderCart(){
@@ -64,7 +65,11 @@ document.addEventListener("click",e=>{
  }
  const remove=e.target.closest("[data-remove]");if(remove){cart.delete(remove.dataset.remove);renderCart();}
 });
-document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderProducts();}));
+document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{
+ const collection=btn.dataset.collection;
+ document.querySelectorAll('.filter[data-collection="'+collection+'"]').forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");renderProducts();
+}));
 const drawer=document.getElementById("cartDrawer"),scrim=document.getElementById("scrim");
 function openCart(){drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");scrim.classList.add("show");}
 function closeCart(){drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");scrim.classList.remove("show");}
