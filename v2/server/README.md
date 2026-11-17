@@ -45,6 +45,11 @@ The marketing/customer-engagement schema is not required for the storefront depl
 - Confirm the production website and its DNS remain unchanged.
 - Keep staging noindex and access-restricted while it is under development.
 
+## Newsletter and contact
+
+- POST `/api/newsletter/subscribe`: CSRF-protected, rate-limited newsletter opt-in. Stores the email, consent timestamp and source in `newsletter_subscribers`; repeat sign-ups reactivate the existing record. Apply the updated `../database/schema.sql` to staging before using this endpoint.
+- The storefront popup is a visual opt-in form; it only displays success after the API confirms the subscription. The floating WhatsApp shortcut opens a chat with Ekhaya Scents at +27 73 846 8238.
+
 ## Customer endpoints
 
 - GET `/api/auth/csrf`, `/api/auth/me`
