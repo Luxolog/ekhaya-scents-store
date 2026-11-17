@@ -201,3 +201,9 @@ footer .wordmark small{color:#d0a75b}
 @media(max-width:950px){.category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.category-tile{min-height:300px}}
 @media(max-width:600px){.category-showcase{padding:58px 6vw 64px}.category-tiles{gap:10px}.category-tile{min-height:245px;padding:14px}.tile-art{inset:42px 6px 70px}.tile-bottom strong{font-size:18px}.tile-bottom small{font-size:8px}.tile-kicker{font-size:7px;letter-spacing:1.2px}}
 @media(prefers-reduced-motion:reduce){.category-tile{transition:none}.category-tile:hover{transform:none}}
+
+
+/* Visibility fix: keep the real packaging photograph bright on the dark maker's panel */
+.supplies-section .supply-stilllife{background:radial-gradient(ellipse at 50% 45%,#59452e 0%,#2b2116 55%,#17120d 100%);overflow:hidden}
+.supplies-section .supply-photo{mix-blend-mode:normal!important;filter:none!important;opacity:1;object-fit:contain;background:transparent;padding:0;max-height:390px;width:100%;position:relative;z-index:1}
+.supplies-section .supply-note{z-index:2;text-shadow:0 2px 8px #000}
