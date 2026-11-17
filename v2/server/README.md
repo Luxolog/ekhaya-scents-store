@@ -104,3 +104,5 @@ The API code is committed to the development branch only. It is not active on Gi
 ### Session security
 
 The PHP session cookie is HTTPS-only (`Secure`, `HttpOnly`, `SameSite=Lax`) and PHP strict session mode plus cookie-only sessions are enabled. Serve the API exclusively over HTTPS; do not test authenticated flows over plain HTTP. Login rotates the session ID and CSRF token.
+
+- After a reseller order request is committed to the database, the API attempts to email the reseller a receipt and each configured administrator (`security.admin_emails`) an action notice. These are best-effort PHP `mail()` attempts: delivery is not guaranteed until the staging mail transport is configured and tested. A mail failure is logged and does not roll back the saved order. The API response reports whether each message was handed to the host mail function; this is not proof of inbox delivery.
