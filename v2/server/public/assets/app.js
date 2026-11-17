@@ -73,3 +73,30 @@ document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click",()
 document.getElementById("year").textContent=new Date().getFullYear();
 renderCart();
 loadCatalogue().catch(()=>{document.getElementById("fragranceGrid").innerHTML=emptyMessage();document.getElementById("homeGrid").innerHTML=emptyMessage();document.getElementById("supplyGrid").innerHTML=emptyMessage();});
+
+
+/* Newsletter modal: consent is recorded only after the API confirms the subscription. */
+(()=>{
+ const overlay=document.getElementById("newsletterOverlay");
+ const form=document.getElementById("newsletterForm");
+ if(!overlay||!form)return;
+ const key="ekhaya_newsletter_dismissed_until";
+ const open=()=>{overlay.classList.add("is-open");overlay.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";};
+ const close=()=>{overlay.classList.remove("is-open");overlay.setAttribute("aria-hidden","true");document.body.style.overflow="";try{localStorage.setItem(key,String(Date.now()+7*24*60*60*1000));}catch{}};
+ overlay.querySelectorAll("[data-newsletter-close]").forEach(el=>el.addEventListener("click",close));
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))close();});
+ let dismissed=0;try{dismissed=Number(localStorage.getItem(key)||0);}catch{}
+ if(Date.now()>dismissed)setTimeout(open,4200);
+ form.addEventListener("submit",async e=>{
+  e.preventDefault();const button=form.querySelector("button[type=submit]");const message=document.getElementById("newsletterMessage");const email=document.getElementById("newsletterEmail").value.trim();
+  button.disabled=true;message.textContent="Submitting…";
+  try{
+   const csrfResponse=await fetch("api/auth/csrf",{credentials:"same-origin"});const csrfData=await csrfResponse.json();if(!csrfResponse.ok)throw Error("Please try again shortly.");
+   const response=await fetch("api/newsletter/subscribe",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRF-Token":csrfData.csrf_token},body:JSON.stringify({email})});
+   const result=await response.json();if(!response.ok)throw Error(result.error==="invalid_email"?"Please enter a valid email address.":"We couldn't complete your subscription. Please try again.");
+   message.textContent="Thank you — you're on the Ekhaya Scents mailing list.";form.reset();try{localStorage.setItem(key,String(Date.now()+365*24*60*60*1000));}catch{}
+   setTimeout(close,2200);
+  }catch(err){message.textContent=err.message||"Something went wrong. Please try again.";}
+  finally{button.disabled=false;}
+ });
+})();
