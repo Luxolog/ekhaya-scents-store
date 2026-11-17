@@ -17,7 +17,8 @@
     <a class="wordmark" href="#home" aria-label="Ekhaya Scents home"><span>EKHAYA</span><small>SCENTS</small></a>
     <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false">☰</button>
     <nav id="mainNav">
-      <a href="#fragrances">Fragrances</a>
+      <a href="#origin-signature">Origin Signature</a>
+      <a href="#origin-inspired">Origin Inspired</a>
       <a href="#home-scents">Home & Car</a>
       <a href="#supplies">Perfume Supplies</a>
       <a href="#starter-kits">Starter Kits</a>
@@ -47,17 +48,30 @@
       <span>CRAFTED WITH INTENTION</span><span>INSPIRED BY OUR ROOTS</span><span>MADE TO BE REMEMBERED</span>
     </section>
 
-    <section class="section" id="fragrances">
+    <section class="section fragrance-collection" id="origin-signature">
       <div class="section-heading">
-        <div><p class="eyebrow">THE SIGNATURE COLLECTION</p><h2>Find your <em>Origin.</em></h2></div>
-        <p>Distinctive fragrances inspired by strength, spirit, wisdom and the beauty of being.</p>
+        <div><p class="eyebrow">ORIGIN BY EKHAYA</p><h2>Origin <em>Signature Scents.</em></h2></div>
+        <p>Our original signature collection: distinctive fragrances inspired by strength, spirit, wisdom and the beauty of being.</p>
       </div>
-      <div class="filters" role="group" aria-label="Filter fragrances">
-        <button class="filter active" data-filter="all">All fragrances</button>
-        <button class="filter" data-filter="him">For him</button>
-        <button class="filter" data-filter="her">For her</button>
+      <div class="filters" role="group" aria-label="Filter Origin Signature fragrances">
+        <button class="filter active" data-filter="all" data-collection="signature">All signature scents</button>
+        <button class="filter" data-filter="him" data-collection="signature">For him</button>
+        <button class="filter" data-filter="her" data-collection="signature">For her</button>
       </div>
-      <div class="product-grid" id="fragranceGrid"></div>
+      <div class="product-grid" id="signatureGrid"></div>
+    </section>
+
+    <section class="section fragrance-collection inspired-collection" id="origin-inspired">
+      <div class="section-heading">
+        <div><p class="eyebrow">A DISTINCT COLLECTION</p><h2>Origin <em>Inspired.</em></h2></div>
+        <p>An independent range of inspired fragrances, presented separately from our original Origin Signature collection.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filter Origin Inspired fragrances">
+        <button class="filter active" data-filter="all" data-collection="inspired">All inspired scents</button>
+        <button class="filter" data-filter="him" data-collection="inspired">For him</button>
+        <button class="filter" data-filter="her" data-collection="inspired">For her</button>
+      </div>
+      <div class="product-grid" id="inspiredGrid"></div>
     </section>
 
     <section class="split-feature" id="home-scents">
