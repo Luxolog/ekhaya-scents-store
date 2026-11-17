@@ -293,6 +293,20 @@ CREATE TABLE IF NOT EXISTS customer_rewards_ledger (
   CONSTRAINT fk_rewards_source FOREIGN KEY (source_ledger_id) REFERENCES customer_rewards_ledger(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL,
+  status ENUM('subscribed','unsubscribed') NOT NULL DEFAULT 'subscribed',
+  source VARCHAR(80) NOT NULL DEFAULT 'storefront_popup',
+  consented_at DATETIME NOT NULL,
+  unsubscribed_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_newsletter_email (email),
+  KEY idx_newsletter_status (status, consented_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS marketing_consents (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   customer_id BIGINT UNSIGNED NOT NULL,
