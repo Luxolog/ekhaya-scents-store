@@ -55,7 +55,7 @@ try {
   );
   $stmt = $pdo->prepare("INSERT INTO reseller_applications
     (first_name,last_name,business_name,email,phone,status,privacy_notice_version,privacy_acknowledged_at,marketing_consent,marketing_consent_at)
-    VALUES (?,?,?,?,?,'PENDING',?,?,?,?,?)");
+    VALUES (?,?,?,?,?,'PENDING',?,?,?,?)");
   $stmt->execute([
     $first,$last,$business !== '' ? $business : null,$email,$phone,$version,$now,
     $marketing ? 1 : 0,$marketing ? $now : null
