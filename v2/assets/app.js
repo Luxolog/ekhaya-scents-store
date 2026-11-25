@@ -50,6 +50,7 @@ function renderSupplyProducts(filter="all"){
 }
 
 const cart = new Map();
+const API_BASE = "/api";
 const money = n => new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
 function card(p){
  const isPerfume=Boolean(p.kind), sizes=isPerfume?Object.keys(sizePrices[p.kind]):[];
@@ -67,6 +68,7 @@ function renderCart(){
  const items=[...cart.values()];
  document.getElementById("cartCount").textContent=items.reduce((s,p)=>s+p.qty,0);
  document.getElementById("cartSubtotal").textContent=money(items.reduce((s,p)=>s+p.price*p.qty,0));
+ const checkout=document.getElementById("checkoutButton"); if(checkout){checkout.disabled=!items.length;checkout.textContent=items.length?"Continue to checkout":"Your bag is empty";}
  document.getElementById("cartItems").innerHTML=items.length?items.map(p=>`<div class="cart-line"><span>${p.name}${p.size?" · "+p.size:""} × ${p.qty}</span><span>${money(p.price*p.qty)} <button data-remove="${p.key}" aria-label="Remove ${p.name}">×</button></span></div>`).join(""):'<p class="empty-cart">Your bag is waiting for something special.</p>';
 }
 document.addEventListener("change",e=>{
@@ -101,5 +103,28 @@ function closeCart(){drawer.classList.remove("open");drawer.setAttribute("aria-h
 document.getElementById("cartTrigger").addEventListener("click",openCart);document.getElementById("cartClose").addEventListener("click",closeCart);scrim.addEventListener("click",closeCart);
 document.getElementById("menuToggle").addEventListener("click",()=>{const nav=document.getElementById("mainNav");const open=nav.classList.toggle("open");document.getElementById("menuToggle").setAttribute("aria-expanded",String(open));});
 document.querySelectorAll("#mainNav a").forEach(a=>a.addEventListener("click",()=>document.getElementById("mainNav").classList.remove("open")));
+
+const checkoutPanel=document.getElementById("checkoutPanel");
+const checkoutForm=document.getElementById("checkoutForm");
+function closeCheckout(){checkoutPanel.classList.remove("open");checkoutPanel.setAttribute("aria-hidden","true");}
+document.getElementById("checkoutClose").addEventListener("click",closeCheckout);
+document.getElementById("checkoutButton").addEventListener("click",()=>{if(!cart.size)return;closeCart();checkoutPanel.classList.add("open");checkoutPanel.setAttribute("aria-hidden","false");});
+checkoutForm.addEventListener("submit",async event=>{
+ event.preventDefault();
+ const button=document.getElementById("payNowButton"),error=document.getElementById("checkoutError");
+ button.disabled=true;button.textContent="Preparing secure payment…";error.textContent="";
+ try{
+  const csrfResponse=await fetch(API_BASE+"/auth/csrf",{credentials:"include"});
+  const csrf=await csrfResponse.json();if(!csrfResponse.ok||!csrf.csrf_token)throw new Error("Checkout is not connected to the staging server yet.");
+  const formData=new FormData(checkoutForm),payload=Object.fromEntries(formData.entries());
+  payload.items=[...cart.values()].map(item=>({id:item.id,size:item.size||"",quantity:item.qty}));
+  const response=await fetch(API_BASE+"/checkout/create",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json","X-CSRF-Token":csrf.csrf_token},body:JSON.stringify(payload)});
+  const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.error==="application_not_configured"?"Staging checkout is not configured yet.":(result.error||"Could not create your order."));
+  const payForm=document.createElement("form");payForm.method="POST";payForm.action=result.payment_url;
+  Object.entries(result.payment_fields).forEach(([name,value])=>{const input=document.createElement("input");input.type="hidden";input.name=name;input.value=value;payForm.appendChild(input);});
+  document.body.appendChild(payForm);payForm.submit();
+ }catch(err){error.textContent=err.message||"Something went wrong. Please try again.";button.disabled=false;button.textContent="Continue to PayFast";}
+});
+
 document.getElementById("year").textContent=new Date().getFullYear();
 renderProducts();renderSupplyProducts();renderCart();
