@@ -1,44 +1,11 @@
 <?php
 declare(strict_types=1);
-
-// Payfast ITN endpoint.
-// IMPORTANT: this file is a starting point and must be completed with your
-// production database/order verification before live payments are enabled.
-// Payfast requires signature, source-IP, amount and data validation checks.
-
-$config = require __DIR__ . '/config.php';
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  http_response_code(405);
-  exit('POST required');
-}
-
-$data = $_POST;
-if (!$data) {
-  http_response_code(400);
-  exit('No ITN data');
-}
-
-$receivedSignature = (string)($data['signature'] ?? '');
-unset($data['signature']);
-
-$signatureString = '';
-foreach ($data as $key => $value) {
-  if ($value === '' || $value === null) continue;
-  $signatureString .= $key . '=' . urlencode(trim((string)$value)) . '&';
-}
-$signatureString = rtrim($signatureString, '&');
-if ($config['payfast']['passphrase'] !== '') {
-  $signatureString .= '&passphrase=' . urlencode(trim($config['payfast']['passphrase']));
-}
-$expectedSignature = md5($signatureString);
-
-if (!hash_equals($expectedSignature, $receivedSignature)) {
-  http_response_code(400);
-  exit('Invalid signature');
-}
-
-// TODO production: verify Payfast source IP, validate amount against the
-// server-side order, then mark the order paid and trigger confirmation email.
-http_response_code(200);
-echo 'OK';
+$config=require __DIR__.'/config.php';
+if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);exit('POST required');}
+$data=$_POST;if(!$data||empty($data['m_payment_id'])||empty($data['signature'])){http_response_code(400);exit('Invalid notification');}
+function ipInCidr(string $ip,string $cidr): bool {[$subnet,$bits]=explode('/',$cidr);$ipLong=ip2long($ip);$subLong=ip2long($subnet);if($ipLong===false||$subLong===false)return false;$mask=$bits==='0'?0:(-1<<(32-(int)$bits));return (($ipLong&$mask)===($subLong&$mask));}
+$allowedCidrs=['197.97.145.144/28','41.74.179.192/27','102.216.36.0/28','102.216.36.128/28','144.126.193.139/32'];$remote=$_SERVER['REMOTE_ADDR']??'';$validIp=false;foreach($allowedCidrs as $cidr)if(ipInCidr($remote,$cidr)){$validIp=true;break;}if(!$validIp){http_response_code(403);exit('Untrusted source');}
+$received=(string)$data['signature'];unset($data['signature']);$parts=[];foreach($data as $key=>$value){if(is_array($value)){http_response_code(400);exit('Invalid data');}if($value!==''&&$value!==null)$parts[]=$key.'='.urlencode(trim((string)$value));}$sig=implode('&',$parts);if(($config['payfast']['passphrase']??'')!=='')$sig.='&passphrase='.urlencode(trim($config['payfast']['passphrase']));if(!hash_equals(md5($sig),$received)){http_response_code(400);exit('Invalid signature');}
+try{$pdo=new PDO('mysql:host='.$config['db']['host'].';dbname='.$config['db']['name'].';charset=utf8mb4',$config['db']['user'],$config['db']['pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_EMULATE_PREPARES=>false]);$q=$pdo->prepare('SELECT id,amount,payment_status FROM orders WHERE order_number=? LIMIT 1');$q->execute([(string)$data['m_payment_id']]);$order=$q->fetch(PDO::FETCH_ASSOC);if(!$order){http_response_code(404);exit('Order not found');}if($order['payment_status']==='paid'){http_response_code(200);exit('OK');}if(($data['merchant_id']??'')!==(string)$config['payfast']['merchant_id']){http_response_code(400);exit('Merchant mismatch');}if(abs((float)$order['amount']-(float)($data['amount_gross']??0))>0.01){http_response_code(400);exit('Amount mismatch');}
+$host=!empty($config['payfast']['sandbox'])?'sandbox.payfast.co.za':'www.payfast.co.za';$ch=curl_init('https://'.$host.'/eng/query/validate');curl_setopt_array($ch,[CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($_POST,'','&',PHP_QUERY_RFC1738),CURLOPT_RETURNTRANSFER=>true,CURLOPT_CONNECTTIMEOUT=>10,CURLOPT_TIMEOUT=>20,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2]);$response=curl_exec($ch);$http=curl_getinfo($ch,CURLINFO_HTTP_CODE);curl_close($ch);if($response===false||$http!==200||trim((string)$response)!=='VALID'){http_response_code(400);exit('PayFast validation failed');}
+if(($data['payment_status']??'')==='COMPLETE'){$u=$pdo->prepare("UPDATE orders SET payment_status='paid',payment_reference=?,paid_at=NOW() WHERE id=? AND payment_status='pending'");$u->execute([(string)($data['pf_payment_id']??''),(int)$order['id']]);}elseif(in_array(($data['payment_status']??''),['FAILED','CANCELLED'],true)){$u=$pdo->prepare("UPDATE orders SET payment_status=? WHERE id=? AND payment_status='pending'");$u->execute([strtolower((string)$data['payment_status']),(int)$order['id']]);}http_response_code(200);echo 'OK';}catch(Throwable $e){error_log('Ekhaya ITN error: '.$e->getMessage());http_response_code(500);echo 'Temporary error';}
