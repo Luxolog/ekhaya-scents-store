@@ -5,6 +5,7 @@ require_once $privateRoot . '/src/Database.php';
 require_once $privateRoot . '/src/Response.php';
 require_once $privateRoot . '/src/Auth.php';
 require_once $privateRoot . '/src/Mailer.php';
+require_once $privateRoot . '/src/PayFast.php';
 $configPath = $privateRoot . '/config.local.php';
 if (!is_file($configPath)) Response::json(['ok'=>false,'error'=>'application_not_configured'],503);
 $config=require $configPath;
@@ -408,6 +409,37 @@ try {
   } catch(Throwable $e) { if($db()->inTransaction()) $db()->rollBack(); throw $e; }
   $json(['ok'=>true,'ledger_id'=>$id,'status'=>$newStatus]);
  }
+
+ if ($method==='POST' && preg_match('~/api/checkout/create/?$~',$path)) {
+  Auth::start(); Auth::verifyCsrf(); Auth::rateLimit($db(),'checkout_create',hash('sha256',(string)($_SERVER['REMOTE_ADDR'] ?? 'unknown')),10);
+  $d=$body(); $items=$d['items'] ?? [];
+  if(!is_array($items)||count($items)<1||count($items)>30) $json(['ok'=>false,'error'=>'invalid_cart'],422);
+  $limits=['first_name'=>100,'last_name'=>100,'email'=>190,'phone'=>40,'address_1'=>190,'address_2'=>190,'city'=>100,'province'=>100,'postcode'=>20]; $b=[];
+  foreach($limits as $k=>$max){$v=trim((string)($d[$k]??''));if(strlen($v)>$max)$json(['ok'=>false,'error'=>'invalid_checkout_details'],422);$b[$k]=$v;}
+  if(!filter_var($b['email'],FILTER_VALIDATE_EMAIL)||!$b['first_name']||!$b['last_name']||!$b['phone']||!$b['address_1']||!$b['city']||!$b['province']||!$b['postcode']) $json(['ok'=>false,'error'=>'required_checkout_fields_missing'],422);
+  $customerId=(int)($_SESSION['customer_id']??0); $reseller=null;
+  if($customerId){$q=$db()->prepare("SELECT id,email,first_name,last_name,phone FROM customers WHERE id=? AND account_status='active' AND email_verified_at IS NOT NULL");$q->execute([$customerId]);$c=$q->fetch();if(!$c)$json(['ok'=>false,'error'=>'authentication_required'],401);$b['email']=$c['email'];$b['first_name']=$b['first_name']?:$c['first_name'];$b['last_name']=$b['last_name']?:$c['last_name'];$b['phone']=$b['phone']?:$c['phone'];$q=$db()->prepare("SELECT id,reseller_type FROM reseller_accounts WHERE customer_id=? AND status='approved' AND approved_at IS NOT NULL LIMIT 1");$q->execute([$customerId]);$reseller=$q->fetch()?:null;if($reseller&&$reseller['reseller_type']!=='stock_buyer')$reseller=null;}else{$customerId=null;}
+  $cat=[
+   'umoya'=>['Umoya','o',[169,249,349]],'amandla'=>['Amandla','o',[169,249,349]],'isibindi'=>['Isibindi','o',[169,249,349]],'isithunzi'=>['Isithunzi','o',[169,249,349]],'ulonwabo'=>['Ulonwabo','o',[169,249,349]],'ubulumko'=>['Ubulumko','o',[169,249,349]],'ubunono'=>['Ubunono','o',[169,249,349]],'ubukhosi'=>['Ubukhosi','o',[169,249,349]],
+   'lady-million'=>['Lady Million','i',[199,299,399]],'black-opium'=>['Black Opium','i',[199,299,399]],'good-girl'=>['Good Girl','i',[199,299,399]],'invictus'=>['Invictus','i',[199,299,399]],'la-vie-est-belle'=>['La Vie Est Belle','i',[199,299,399]],
+   'reed-diffuser'=>['Reed Diffuser 150ml','s',299],'linen-spray'=>['Linen Spray 250ml','s',149],'car-perfume'=>['Car Perfume','s',50]
+  ];
+  $sizes=['30ml'=>0,'50ml'=>1,'100ml'=>2];$normal=[];$subtotal=0.0;
+  foreach($items as $it){if(!is_array($it))$json(['ok'=>false,'error'=>'invalid_cart_item'],422);$id=(string)($it['id']??'');$qty=filter_var($it['quantity']??null,FILTER_VALIDATE_INT);if(!isset($cat[$id])||$qty===false||$qty<1||$qty>20)$json(['ok'=>false,'error'=>'invalid_or_unavailable_product'],422);[$name,$kind,$prices]=$cat[$id];$size=(string)($it['size']??'');if($kind==='o'||$kind==='i'){if(!isset($sizes[$size]))$json(['ok'=>false,'error'=>'invalid_product_size'],422);$price=(float)$prices[$sizes[$size]];if($kind==='o'&&$reseller&&$size!=='100ml')$price=$size==='30ml'?99.0:135.0;}else{if($size!=='')$json(['ok'=>false,'error'=>'invalid_product_size'],422);$price=(float)$prices;if($id==='car-perfume'&&$reseller)$price=25.0;}$line=round($price*$qty,2);$subtotal=round($subtotal+$line,2);$normal[]=['id'=>$id,'name'=>$name.($size?' '.$size:''),'sku'=>strtoupper(str_replace('-','',$id)).($size?'-'.strtoupper($size):''),'size'=>$size?:null,'qty'=>$qty,'price'=>$price,'line'=>$line];}
+  $shipping=85.0;$grand=round($subtotal+$shipping,2);$orderNo='ES'.gmdate('ymd').strtoupper(bin2hex(random_bytes(5)));
+  $address=['first_name'=>$b['first_name'],'last_name'=>$b['last_name'],'phone'=>$b['phone'],'address_1'=>$b['address_1'],'address_2'=>$b['address_2'],'city'=>$b['city'],'province'=>$b['province'],'postcode'=>$b['postcode'],'country_code'=>'ZA'];
+  $db()->beginTransaction();try{$db()->prepare("INSERT INTO orders (order_number,customer_id,email,status,currency,subtotal,shipping_total,grand_total,payment_method,billing_address_snapshot,shipping_address_snapshot) VALUES (?,?,?,'pending_payment','ZAR',?,?,?,'payfast',?,?)")->execute([$orderNo,$customerId,$b['email'],$subtotal,$shipping,$grand,json_encode($address,JSON_THROW_ON_ERROR),json_encode($address,JSON_THROW_ON_ERROR)]);$oid=(int)$db()->lastInsertId();$ins=$db()->prepare('INSERT INTO order_items (order_id,product_name_snapshot,sku_snapshot,quantity,unit_price,line_total,metadata) VALUES (?,?,?,?,?,?,?)');foreach($normal as $n)$ins->execute([$oid,$n['name'],$n['sku'],$n['qty'],$n['price'],$n['line'],json_encode(['catalogue_id'=>$n['id'],'size'=>$n['size'],'reseller_pricing'=>(bool)$reseller],JSON_THROW_ON_ERROR)]);$db()->prepare("INSERT INTO payment_events (order_id,gateway,event_type,amount,currency,verification_status,idempotency_key,safe_payload) VALUES (?,'payfast','checkout_created',?,'ZAR','unverified',?,?)")->execute([$oid,$grand,$orderNo,json_encode(['environment'=>'sandbox'],JSON_THROW_ON_ERROR)]);$db()->commit();}catch(Throwable $e){if($db()->inTransaction())$db()->rollBack();throw $e;}
+  $pf=PayFast::settings($config);if(!$pf['sandbox'])$json(['ok'=>false,'error'=>'live_payments_disabled_during_testing'],503);
+  $fields=PayFast::checkoutFields($pf,['order_number'=>$orderNo,'grand_total'=>$grand],$b,(string)$config['app']['base_url']);
+  $json(['ok'=>true,'order_number'=>$orderNo,'subtotal'=>number_format($subtotal,2,'.',''),'shipping'=>'85.00','grand_total'=>number_format($grand,2,'.',''),'delivery'=>'Standard delivery · 3–5 business days','payment_url'=>'https://'.$pf['host'].'/eng/process','payment_fields'=>$fields],201);
+ }
+ if($method==='POST'&&preg_match('~/api/payments/payfast/itn/?$~',$path)){
+  $pf=PayFast::settings($config);if(!PayFast::validateNotification($_POST,$pf)){http_response_code(400);echo 'INVALID';exit;}
+  $ref=(string)$_POST['m_payment_id'];$q=$db()->prepare('SELECT id,status,grand_total FROM orders WHERE order_number=? LIMIT 1');$q->execute([$ref]);$o=$q->fetch();if(!$o){http_response_code(404);echo 'ORDER NOT FOUND';exit;}
+  $amount=round((float)($_POST['amount_gross']??0),2);if(abs($amount-(float)$o['grand_total'])>0.01||(string)($_POST['merchant_id']??'')!==$pf['merchant_id']){http_response_code(400);echo 'MISMATCH';exit;}
+  $status=(string)$_POST['payment_status'];$db()->beginTransaction();try{if($status==='COMPLETE'&&$o['status']!=='paid')$db()->prepare("UPDATE orders SET status='paid',payment_reference=?,paid_at=UTC_TIMESTAMP() WHERE id=? AND status='pending_payment'")->execute([(string)($_POST['pf_payment_id']??''),(int)$o['id']]);elseif($status!=='COMPLETE')$db()->prepare("UPDATE orders SET status='payment_failed' WHERE id=? AND status='pending_payment'")->execute([(int)$o['id']]);$db()->prepare("INSERT INTO payment_events (order_id,gateway,gateway_reference,event_type,amount,currency,verification_status,idempotency_key,safe_payload) VALUES (?,'payfast',?,?,?,'ZAR','verified',?,?) ON DUPLICATE KEY UPDATE verification_status='verified'")->execute([(int)$o['id'],(string)($_POST['pf_payment_id']??''),$status,$amount,$ref.':'.$status,json_encode(['payment_status'=>$status],JSON_THROW_ON_ERROR)]);$db()->commit();}catch(Throwable $e){if($db()->inTransaction())$db()->rollBack();throw $e;}http_response_code(200);echo 'OK';exit;
+ }
+
  if ($method==='GET' && preg_match('~/api/categories/?$~',$path)) {
   $categories=$db()->query("SELECT c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order,COUNT(DISTINCT pc.product_id) AS product_count FROM categories c LEFT JOIN product_categories pc ON pc.category_id=c.id LEFT JOIN products p ON p.id=pc.product_id AND p.status='published' WHERE c.is_active=1 GROUP BY c.id,c.name,c.slug,c.description,c.parent_id,c.sort_order ORDER BY c.sort_order,c.name")->fetchAll();
   $json(['ok'=>true,'categories'=>$categories]);
