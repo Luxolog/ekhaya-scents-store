@@ -23,7 +23,7 @@ const inspiredProducts = [
 const homeProducts = [
  {id:"reed-diffuser",name:"Reed Diffuser",subtitle:"150ml · Home fragrance",price:299,image:asset("Reed Diffuser.jpeg")},
  {id:"linen-spray",name:"Linen Spray",subtitle:"250ml · Home fragrance",price:149,image:asset("Linen Spray.png")},
- {id:"car-perfume",name:"Car Perfume",subtitle:"Every journey, beautifully scented",price:65,image:asset("7ml Car Perfume Amber and Oud.png")}
+ {id:"car-perfume",name:"Car Perfume",subtitle:"Every journey, beautifully scented",price:50,image:asset("7ml Car Perfume Amber and Oud.png")}
 ];
 
 const supplyProducts = [
