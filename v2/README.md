@@ -34,3 +34,6 @@ Open `index.html` in a browser or deploy this folder to a protected staging loca
 
 ## Deployment target
 Domains.co.za Basic shared hosting, subject to confirming available PHP extensions, MariaDB, cron, SSH/Composer and storage. Keep deployment compatible with cPanel and avoid requiring Vercel.
+
+## Recovery checkpoint — 26 November 2026
+The V2 storefront source is preserved on `ekhaya-platform-v2`. The recovery backup branch is `backup/ekhaya-platform-v2-2026-11-26`. Keep this V2 source as the storefront recovery baseline; do not merge the divergent `main` branch over it. This preview is not a live checkout: payment and order processing remain disabled pending backend integration and testing.
