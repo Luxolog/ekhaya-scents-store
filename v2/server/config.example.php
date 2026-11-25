@@ -15,4 +15,10 @@ return [
   'name'=>getenv('EKHAYA_DB_NAME') ?: '','user'=>getenv('EKHAYA_DB_USER') ?: '',
   'password'=>getenv('EKHAYA_DB_PASS') ?: '',
  ],
+ 'payfast'=>[
+  'environment'=>getenv('PAYFAST_ENV') ?: 'sandbox',
+  'merchant_id'=>getenv('PAYFAST_MERCHANT_ID') ?: '',
+  'merchant_key'=>getenv('PAYFAST_MERCHANT_KEY') ?: '',
+  'passphrase'=>getenv('PAYFAST_PASSPHRASE') ?: '',
+ ],
 ];
