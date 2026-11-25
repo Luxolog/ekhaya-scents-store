@@ -27,7 +27,22 @@ CREATE TABLE orders (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   paid_at TIMESTAMP NULL,
   INDEX(email),
-  INDEX(payment_status)
+  INDEX(payment_status),
+  INDEX(payment_reference)
+);
+
+CREATE TABLE order_items (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_id INT UNSIGNED NOT NULL,
+  product_code VARCHAR(80) NOT NULL,
+  product_name VARCHAR(160) NOT NULL,
+  quantity INT UNSIGNED NOT NULL,
+  unit_price DECIMAL(12,2) NOT NULL,
+  line_total DECIMAL(12,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_order_items_order FOREIGN KEY (order_id)
+    REFERENCES orders(id) ON DELETE CASCADE,
+  INDEX(product_code)
 );
 
 CREATE TABLE campaigns (
